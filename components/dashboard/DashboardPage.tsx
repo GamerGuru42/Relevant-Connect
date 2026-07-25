@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
+import { format } from 'date-fns'
 
 import { announcementService } from '@/services/database/announcementService'
 import { eventService } from '@/services/database/eventService'
@@ -11,12 +12,12 @@ import { attendanceService } from '@/services/database/attendanceService'
 import { churchInfoService } from '@/services/database/churchInfoService'
 import { AppLayout } from '@/components/shared/AppLayout'
 import { motion } from 'framer-motion'
-import { Calendar, User, Settings } from 'lucide-react'
+import { Calendar, User, Settings, Bell, ChevronRight, CheckCircle, BookOpen, Clock, Heart } from 'lucide-react'
 
 export function DashboardPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const [, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [churchInfo, setChurchInfo] = useState<ChurchInfo | null>(null)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [events, setEvents] = useState<Event[]>([])
@@ -28,7 +29,7 @@ export function DashboardPage() {
       try {
         const [info, anns, evts, att] = await Promise.all([
           churchInfoService.get(),
-          announcementService.getPublished(5),
+          announcementService.getPublished(3),
           eventService.getUpcoming(),
           attendanceService.getUserAttendance(user.id)
         ])
@@ -50,73 +51,191 @@ export function DashboardPage() {
   const isAdmin = user.role === 'admin'
   const isVisitor = user.membershipStatus === 'visitor'
 
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' },
+    }),
+  }
+
   return (
     <AppLayout>
-      <main className="container mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+      <div className="min-h-screen bg-background pb-20">
+        
+        {/* ───── Cinematic Welcome Header ───── */}
+        <section className="relative pt-12 pb-24 overflow-hidden rounded-b-[3rem] mb-12">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-primary to-slate-900" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/20 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/20" />
+
+          <div className="relative z-10 container mx-auto px-6">
+            <motion.div initial="hidden" animate="visible" className="max-w-3xl">
+              <motion.p custom={0} variants={fadeUp} className="text-white/70 font-medium tracking-widest uppercase text-sm mb-3">
+                {format(new Date(), 'EEEE, MMMM do, yyyy')}
+              </motion.p>
+              <motion.h1 custom={1} variants={fadeUp} className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
+                Welcome back, {user.fullName.split(' ')[0]} 👋
+              </motion.h1>
+              <motion.p custom={2} variants={fadeUp} className="text-lg text-white/80 leading-relaxed max-w-xl">
+                {isVisitor 
+                  ? "We're so glad you're here! Explore our community and see what's happening."
+                  : `You are currently logged in as a ${user.membershipStatus}. Stay updated with the latest events and announcements.`}
+              </motion.p>
+            </motion.div>
+          </div>
+        </section>
+
+        <main className="container mx-auto px-6 -mt-20 relative z-20">
           
-          {/* Welcome Section */}
-          <section className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
-            <h2 className="text-3xl font-bold mb-2 relative z-10">Welcome, {user.fullName}! 👋</h2>
-            {churchInfo?.todayScripture && !isVisitor && (
-              <p className="opacity-90 italic mb-4">&quot;{churchInfo.todayScripture}&quot;</p>
-            )}
-            <p className="opacity-90">
-              {isVisitor ? 'Explore our church and join the community' : `You are logged in as ${user.membershipStatus}`}
-            </p>
-          </section>
+          <div className="grid lg:grid-cols-3 gap-8">
+            
+            {/* Left Column: Quick Actions & Scripture */}
+            <div className="lg:col-span-2 space-y-8">
+              
+              {/* Scripture of the Day */}
+              {churchInfo?.todayScripture && !isVisitor && (
+                <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                  <div className="relative bg-card border border-border/50 rounded-3xl p-8 shadow-xl">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-bold text-lg">Word for the Day</h3>
+                    </div>
+                    <blockquote className="text-2xl font-medium text-foreground leading-snug mb-4 italic">
+                      "{churchInfo.todayScripture}"
+                    </blockquote>
+                  </div>
+                </motion.div>
+              )}
 
-          {/* Quick Stats */}
-          {!isVisitor && (
-            <section className="grid md:grid-cols-3 gap-6">
-              <div className="glass-card rounded-2xl p-6">
-                <h3 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Events Attended</h3>
-                <p className="text-4xl font-extrabold text-gradient">{attendanceCount}</p>
-              </div>
-              <div className="glass-card rounded-2xl p-6">
-                <h3 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Upcoming Events</h3>
-                <p className="text-4xl font-extrabold text-gradient">{events.length}</p>
-              </div>
-              <div className="glass-card rounded-2xl p-6">
-                <h3 className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Announcements</h3>
-                <p className="text-4xl font-extrabold text-gradient">{announcements.length}</p>
-              </div>
-            </section>
-          )}
-
-          {/* Navigation Cards */}
-          <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <button onClick={() => router.push('/announcements')} className="group glass-card rounded-2xl p-6 text-left hover:-translate-y-1 transition-transform">
-              <div className="text-3xl mb-3">📢</div>
-              <h3 className="font-bold text-lg">Announcements</h3>
-            </button>
-            <button onClick={() => router.push('/events')} className="group glass-card rounded-2xl p-6 text-left hover:-translate-y-1 transition-transform">
-              <Calendar className="w-8 h-8 mb-3 text-primary" />
-              <h3 className="font-bold text-lg">Events</h3>
-            </button>
-            {!isVisitor && (
-              <>
-                <button onClick={() => router.push('/attendance')} className="group glass-card rounded-2xl p-6 text-left hover:-translate-y-1 transition-transform">
-                  <div className="text-3xl mb-3 text-secondary">✓</div>
-                  <h3 className="font-bold text-lg">Attendance</h3>
+              {/* Navigation Grid */}
+              <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="grid sm:grid-cols-2 gap-4">
+                <button onClick={() => router.push('/announcements')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
+                    <Bell className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-lg mb-1">Announcements</h3>
+                  <p className="text-sm text-muted-foreground text-left">Stay updated with church news</p>
                 </button>
-                <button onClick={() => router.push('/profile')} className="group glass-card rounded-2xl p-6 text-left hover:-translate-y-1 transition-transform">
-                  <User className="w-8 h-8 mb-3 text-primary" />
-                  <h3 className="font-bold text-lg">Profile</h3>
-                </button>
-              </>
-            )}
-            {isAdmin && (
-              <button onClick={() => router.push('/admin')} className="group glass-card rounded-2xl p-6 text-left hover:-translate-y-1 transition-transform col-span-full md:col-span-2 lg:col-span-4 border-destructive/30">
-                <Settings className="w-8 h-8 mb-3 text-destructive" />
-                <h3 className="font-bold text-lg text-destructive">Admin Panel</h3>
-              </button>
-            )}
-          </section>
 
-        </motion.div>
-      </main>
+                <button onClick={() => router.push('/events')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-500 mb-4 group-hover:scale-110 transition-transform">
+                    <Calendar className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-lg mb-1">Events & Calendar</h3>
+                  <p className="text-sm text-muted-foreground text-left">Never miss a fellowship</p>
+                </button>
+
+                {!isVisitor && (
+                  <>
+                    <button onClick={() => router.push('/attendance')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+                      <div className="w-12 h-12 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-500 mb-4 group-hover:scale-110 transition-transform">
+                        <CheckCircle className="w-6 h-6" />
+                      </div>
+                      <h3 className="font-bold text-lg mb-1">Mark Attendance</h3>
+                      <p className="text-sm text-muted-foreground text-left">Scan QR or enter code</p>
+                    </button>
+
+                    <button onClick={() => router.push('/profile')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+                      <div className="w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center text-violet-500 mb-4 group-hover:scale-110 transition-transform">
+                        <User className="w-6 h-6" />
+                      </div>
+                      <h3 className="font-bold text-lg mb-1">My Profile</h3>
+                      <p className="text-sm text-muted-foreground text-left">Manage your information</p>
+                    </button>
+                  </>
+                )}
+              </motion.div>
+
+              {isAdmin && (
+                <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp}>
+                  <button onClick={() => router.push('/admin')} className="w-full group flex items-center justify-between bg-destructive/5 border border-destructive/20 rounded-3xl p-6 hover:bg-destructive/10 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive">
+                        <Settings className="w-6 h-6" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-bold text-lg text-destructive">Admin Dashboard</h3>
+                        <p className="text-sm text-destructive/70">Manage users, events, and church settings</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-destructive group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Right Column: Reminders & Stats */}
+            <div className="space-y-6">
+              
+              {!isVisitor && (
+                <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="bg-card border border-border/50 rounded-3xl p-6 shadow-xl">
+                  <h3 className="font-bold text-lg flex items-center gap-2 mb-6">
+                    <Heart className="w-5 h-5 text-rose-500" /> My Engagement
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-muted/30 rounded-2xl p-4 text-center">
+                      <p className="text-3xl font-extrabold text-primary mb-1">{attendanceCount}</p>
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Attended</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-2xl p-4 text-center">
+                      <p className="text-3xl font-extrabold text-secondary mb-1">{events.length}</p>
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Upcoming</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="bg-card border border-border/50 rounded-3xl p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-amber-500" /> Upcoming Events
+                  </h3>
+                  <button onClick={() => router.push('/events')} className="text-sm font-medium text-primary hover:underline">View All</button>
+                </div>
+                
+                {events.length > 0 ? (
+                  <div className="space-y-4">
+                    {events.map(event => (
+                      <div key={event.id} className="flex gap-4 p-3 rounded-2xl hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => router.push(`/events/${event.id}`)}>
+                        <div className="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary">
+                          <span className="text-xs font-bold uppercase">{format(new Date(event.startDate), 'MMM')}</span>
+                          <span className="text-lg font-extrabold leading-none">{format(new Date(event.startDate), 'd')}</span>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm line-clamp-1">{event.title}</h4>
+                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> {format(new Date(event.startDate), 'h:mm a')}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="text-sm">No upcoming events right now.</p>
+                  </div>
+                )}
+              </motion.div>
+
+              <motion.div custom={6} initial="hidden" animate="visible" variants={fadeUp} className="bg-gradient-to-br from-primary to-secondary rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-xl -mr-10 -mt-10"></div>
+                <h3 className="font-bold text-lg mb-2 relative z-10">Stay Informed</h3>
+                <p className="text-sm text-white/80 mb-4 relative z-10">You have {announcements.length} new announcements from the leadership.</p>
+                <button onClick={() => router.push('/announcements')} className="w-full py-2.5 bg-white text-gray-900 font-bold rounded-xl text-sm hover:bg-white/90 transition-colors relative z-10">
+                  Read Announcements
+                </button>
+              </motion.div>
+
+            </div>
+          </div>
+        </main>
+      </div>
     </AppLayout>
   )
 }
