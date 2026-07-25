@@ -73,7 +73,7 @@ export function ProfilePage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border rounded-lg shadow-soft p-8 mb-6"
+            className="bg-card border border-border/50 rounded-3xl shadow-xl p-8 mb-6"
           >
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-4xl text-primary-foreground">

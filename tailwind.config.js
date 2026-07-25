@@ -48,8 +48,17 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        soft: '0 2px 8px rgba(0, 0, 0, 0.08)',
+        soft: '0 4px 20px -2px rgba(0, 0, 0, 0.06)',
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        glow: '0 0 40px -10px rgba(59, 130, 246, 0.4)',
+      },
+      keyframes: {
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 2s infinite',
       },
     },
   },
