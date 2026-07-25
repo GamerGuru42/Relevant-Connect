@@ -10,6 +10,7 @@ import { Button } from './Button'
 import { useAuthStore } from '@/store/authStore'
 import { authService } from '@/services/auth/authService'
 import toast from 'react-hot-toast'
+import { Logo } from './Logo'
 
 export function AppHeader() {
   const router = useRouter()
@@ -45,9 +46,7 @@ export function AppHeader() {
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md group-hover:shadow-primary/40 transition-all duration-300 transform group-hover:scale-105">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white"><path d="M12 5v14M5 12h14"/></svg>
-            </div>
+            <Logo className="w-10 h-10 group-hover:scale-105 transition-transform duration-300" />
             <span className="font-extrabold text-xl hidden sm:inline-block tracking-tight text-gradient">Relevant+</span>
           </Link>
           

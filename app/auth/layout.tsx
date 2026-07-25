@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import Link from 'next/link'
+import { Logo } from '@/components/shared/Logo'
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -13,9 +14,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white"><path d="M12 5v14M5 12h14"/></svg>
-            </div>
+            <Logo className="w-11 h-11" />
             <span className="font-extrabold text-xl text-white tracking-tight">Relevant+</span>
           </Link>
 

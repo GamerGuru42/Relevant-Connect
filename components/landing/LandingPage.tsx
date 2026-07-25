@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { churchInfoService } from '@/services/database/churchInfoService'
 import type { ChurchInfo } from '@/types'
+import { Logo } from '@/components/shared/Logo'
 import { motion } from 'framer-motion'
 import { ArrowRight, Calendar, Users, Bell, CheckCircle, ChevronDown } from 'lucide-react'
 
@@ -39,9 +40,7 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
         <div className="relative container mx-auto flex h-20 items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white"><path d="M12 5v14M5 12h14"/></svg>
-            </div>
+            <Logo className="w-11 h-11" />
             <span className="font-extrabold text-xl text-white tracking-tight">Relevant+</span>
           </div>
           <div className="flex items-center gap-3">
