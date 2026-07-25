@@ -30,7 +30,6 @@ export function getCached<T>(key: string): T | null {
     if (!raw) return null
 
     const cached: CachedData<T> = JSON.parse(raw)
-    const isExpired = Date.now() - cached.timestamp > cached.ttl
 
     // Return data even if expired (stale) — caller can decide to refetch
     return cached.data
