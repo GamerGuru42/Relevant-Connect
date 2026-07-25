@@ -1,59 +1,143 @@
-const CACHE_NAME = 'relevant-plus-v1';
-const OFFLINE_URL = '/';
+const CACHE_NAME = 'relevant-plus-v2';
+const STATIC_CACHE = 'relevant-static-v2';
+const DATA_CACHE = 'relevant-data-v2';
 
+// Static assets to precache
 const PRECACHE_URLS = [
   '/',
   '/auth/login',
   '/auth/signup',
   '/manifest.json',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
 ];
 
+// Install: precache static shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS);
-    })
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS))
   );
   self.skipWaiting();
 });
 
+// Activate: clean old caches
 self.addEventListener('activate', (event) => {
+  const currentCaches = [STATIC_CACHE, DATA_CACHE];
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
-      );
-    })
+    caches.keys().then((names) =>
+      Promise.all(
+        names
+          .filter((name) => !currentCaches.includes(name))
+          .map((name) => caches.delete(name))
+      )
+    )
   );
   self.clients.claim();
 });
 
+// Fetch: strategy depends on request type
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests (mutations go through sync queue in the app)
+  if (request.method !== 'GET') return;
+
+  // Supabase API calls: Network first, fall back to cache
+  if (url.hostname.includes('supabase')) {
+    event.respondWith(networkFirstThenCache(request, DATA_CACHE));
+    return;
+  }
+
+  // Navigation requests: Network first, offline fallback
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(OFFLINE_URL);
-      })
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => caches.match(request).then((r) => r || caches.match('/')))
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        // Return cache but also fetch fresh in background
-        const fetchPromise = fetch(event.request).then((response) => {
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return response;
-        }).catch(() => cached);
-        return cached;
-      }
-      return fetch(event.request);
-    })
-  );
+  // Static assets: Cache first, network fallback
+  if (
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/icons/') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.png') ||
+    url.pathname.endsWith('.jpg') ||
+    url.pathname.endsWith('.svg') ||
+    url.pathname.endsWith('.woff2')
+  ) {
+    event.respondWith(cacheFirstThenNetwork(request, STATIC_CACHE));
+    return;
+  }
+
+  // Everything else: network first
+  event.respondWith(networkFirstThenCache(request, STATIC_CACHE));
+});
+
+// Cache first, then network
+async function cacheFirstThenNetwork(request, cacheName) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200) {
+      const clone = response.clone();
+      const cache = await caches.open(cacheName);
+      cache.put(request, clone);
+    }
+    return response;
+  } catch (e) {
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+// Network first, fall back to cache
+async function networkFirstThenCache(request, cacheName) {
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200) {
+      const clone = response.clone();
+      const cache = await caches.open(cacheName);
+      cache.put(request, clone);
+    }
+    return response;
+  } catch (e) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    return new Response(JSON.stringify({ error: 'Offline' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Listen for sync events (Background Sync API)
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-pending-actions') {
+    event.waitUntil(syncPendingActions());
+  }
+});
+
+async function syncPendingActions() {
+  // Notify clients to run their sync queue
+  const clients = await self.clients.matchAll();
+  clients.forEach((client) => {
+    client.postMessage({ type: 'SYNC_PENDING' });
+  });
+}
+
+// Listen for messages from the app
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
