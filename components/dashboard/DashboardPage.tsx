@@ -17,7 +17,7 @@ import { Calendar, User, Settings, Bell, ChevronRight, CheckCircle, BookOpen, Cl
 export function DashboardPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [churchInfo, setChurchInfo] = useState<ChurchInfo | null>(null)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [events, setEvents] = useState<Event[]>([])
