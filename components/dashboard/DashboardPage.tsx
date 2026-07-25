@@ -204,13 +204,13 @@ export function DashboardPage() {
                     {events.map(event => (
                       <div key={event.id} className="flex gap-4 p-3 rounded-2xl hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => router.push(`/events/${event.id}`)}>
                         <div className="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary">
-                          <span className="text-xs font-bold uppercase">{format(new Date(event.startDate), 'MMM')}</span>
-                          <span className="text-lg font-extrabold leading-none">{format(new Date(event.startDate), 'd')}</span>
+                          <span className="text-xs font-bold uppercase">{format(new Date(event.date), 'MMM')}</span>
+                          <span className="text-lg font-extrabold leading-none">{format(new Date(event.date), 'd')}</span>
                         </div>
                         <div>
                           <h4 className="font-bold text-sm line-clamp-1">{event.title}</h4>
                           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> {format(new Date(event.startDate), 'h:mm a')}
+                            <Clock className="w-3 h-3" /> {event.time}
                           </p>
                         </div>
                       </div>
