@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
@@ -18,6 +18,9 @@ export function AppHeader() {
   const { user, setUser } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => setMounted(true), [])
 
   const handleLogout = async () => {
     try {
@@ -38,14 +41,14 @@ export function AppHeader() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full glass border-b border-border/40">
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-sm">
-              R+
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-md group-hover:shadow-primary/40 transition-all duration-300 transform group-hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white"><path d="M12 5v14M5 12h14"/></svg>
             </div>
-            <span className="font-bold text-lg hidden sm:inline-block">Relevant+</span>
+            <span className="font-extrabold text-xl hidden sm:inline-block tracking-tight text-gradient">Relevant+</span>
           </Link>
           
           <nav className="hidden md:flex gap-1">
@@ -66,9 +69,10 @@ export function AppHeader() {
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary"
+            aria-label="Toggle Theme"
           >
-            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {mounted ? (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />) : <div className="w-5 h-5" />}
           </button>
           
           {user && (

@@ -42,7 +42,7 @@ export function EventsPage() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {events.map((event, i) => (
-              <motion.div key={event.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-card border border-border rounded-lg shadow-soft overflow-hidden flex flex-col">
+              <motion.div key={event.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1 transition-transform">
                 {event.posterUrl && (
                   <div className="h-48 bg-muted">
                     <img src={event.posterUrl} alt={event.title} className="w-full h-full object-cover" />

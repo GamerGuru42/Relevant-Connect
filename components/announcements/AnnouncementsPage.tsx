@@ -38,7 +38,7 @@ export function AnnouncementsPage() {
         ) : (
           <div className="grid gap-6">
             {announcements.map((ann, i) => (
-              <motion.div key={ann.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-card border border-border rounded-lg shadow-soft overflow-hidden flex flex-col md:flex-row">
+              <motion.div key={ann.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl overflow-hidden flex flex-col md:flex-row hover:-translate-y-1 transition-transform">
                 {ann.imageUrl && (
                   <div className="md:w-1/3 h-48 md:h-auto bg-muted">
                     <img src={ann.imageUrl} alt={ann.title} className="w-full h-full object-cover" />
