@@ -107,7 +107,7 @@ export function DashboardPage() {
                       <h3 className="font-bold text-lg">Word for the Day</h3>
                     </div>
                     <blockquote className="text-2xl font-medium text-foreground leading-snug mb-4 italic">
-                      "{churchInfo.todayScripture}"
+                      &quot;{churchInfo.todayScripture}&quot;
                     </blockquote>
                   </div>
                 </motion.div>
