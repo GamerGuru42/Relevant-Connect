@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+
 import { useAuthStore } from '@/store/authStore'
 import { format } from 'date-fns'
 
@@ -19,7 +19,7 @@ interface VerseOfTheDay {
 }
 
 export function DashboardPage() {
-  const router = useRouter()
+
   const user = useAuthStore((state) => state.user)
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
