@@ -19,6 +19,18 @@ export function AppLayout({ children }: { children: ReactNode }) {
     }
   }, [user, pathname, router])
 
+  // Prevent flash of content before redirect happens
+  if (user && !user.isOnboarded && pathname !== '/onboarding') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-muted border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Redirecting to onboarding...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SyncIndicator />
