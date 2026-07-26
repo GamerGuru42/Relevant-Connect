@@ -9,9 +9,10 @@ import { announcementService } from '@/services/database/announcementService'
 import { eventService } from '@/services/database/eventService'
 import type { Announcement, Event } from '@/types'
 
-import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle, ChevronRight } from 'lucide-react'
+import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle, ChevronRight, Video } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { AppLayout } from '@/components/shared/AppLayout'
 
 interface VerseOfTheDay {
   text: string;
@@ -100,6 +101,7 @@ export function DashboardPage() {
   }
 
   return (
+    <AppLayout>
     <div className="min-h-screen bg-background/50 pb-24 md:pb-8">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b border-border/40 pb-8 pt-8">
@@ -137,11 +139,18 @@ export function DashboardPage() {
               initial="hidden" animate="visible" variants={fadeUp}
               className="grid grid-cols-2 md:grid-cols-4 gap-4"
             >
-              <Link href="/announcements" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Bell className="w-6 h-6" />
+              <Link href="/bible" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <BookOpen className="w-6 h-6" />
                 </div>
-                <span className="font-semibold text-sm">News</span>
+                <span className="font-semibold text-sm">Bible</span>
+              </Link>
+
+              <Link href="/meetings" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Video className="w-6 h-6" />
+                </div>
+                <span className="font-semibold text-sm">Meetings</span>
               </Link>
               
               <Link href="/events" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
@@ -156,7 +165,7 @@ export function DashboardPage() {
                   <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <CheckCircle className="w-6 h-6" />
                   </div>
-                  <span className="font-semibold text-sm">Mark Attendance</span>
+                  <span className="font-semibold text-sm">Attendance</span>
                 </Link>
               )}
             </motion.div>
@@ -346,5 +355,6 @@ export function DashboardPage() {
         </div>
       </div>
     </div>
+    </AppLayout>
   )
 }
