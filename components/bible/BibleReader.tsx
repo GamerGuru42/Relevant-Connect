@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { AppLayout } from '@/components/shared/AppLayout'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, ChevronLeft, ChevronRight, ChevronDown, Search } from 'lucide-react'
+import { BookOpen, ChevronLeft, ChevronRight, ChevronDown, Search, Type } from 'lucide-react'
 
 const BIBLE_BOOKS = {
   'Old Testament': [
@@ -45,6 +45,13 @@ const VERSIONS = [
   { id: 'ylt', label: 'YLT', full: "Young's Literal Translation" },
 ]
 
+const FONT_SIZES = [
+  { label: 'S', size: 'text-sm leading-7' },
+  { label: 'M', size: 'text-base leading-8' },
+  { label: 'L', size: 'text-lg leading-9' },
+  { label: 'XL', size: 'text-xl leading-10' },
+]
+
 interface BibleVerse {
   book_name: string
   chapter: number
@@ -61,8 +68,9 @@ export function BibleReader() {
   const [showBookPicker, setShowBookPicker] = useState(false)
   const [showVersionPicker, setShowVersionPicker] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [fontSizeIdx, setFontSizeIdx] = useState(1) // default Medium
 
-  // Persist last reading position
+  // Persist last reading position & font size
   useEffect(() => {
     const saved = localStorage.getItem('bible-reading-position')
     if (saved) {
@@ -73,6 +81,8 @@ export function BibleReader() {
         setVersion(v)
       } catch { /* ignore */ }
     }
+    const savedFont = localStorage.getItem('bible-font-size')
+    if (savedFont) setFontSizeIdx(Number(savedFont))
   }, [])
 
   const fetchChapter = useCallback(async () => {
@@ -86,13 +96,11 @@ export function BibleReader() {
       if (data.verses) {
         setVerses(data.verses)
       } else if (data.text) {
-        // Fallback: single text block
         setVerses([{ book_name: book, chapter, verse: 1, text: data.text }])
       }
       localStorage.setItem('bible-reading-position', JSON.stringify({ book, chapter, version }))
     } catch (err) {
       console.error('Bible fetch error:', err)
-      // Try cached data
       const cached = localStorage.getItem(`bible-${version}-${book}-${chapter}`)
       if (cached) {
         setVerses(JSON.parse(cached))
@@ -121,7 +129,6 @@ export function BibleReader() {
     if (chapter < maxChapters) {
       setChapter(chapter + 1)
     } else {
-      // Go to the next book
       const allBooks = [...BIBLE_BOOKS['Old Testament'], ...BIBLE_BOOKS['New Testament']]
       const idx = allBooks.indexOf(book)
       if (idx < allBooks.length - 1) {
@@ -147,32 +154,79 @@ export function BibleReader() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const changeFontSize = (idx: number) => {
+    setFontSizeIdx(idx)
+    localStorage.setItem('bible-font-size', String(idx))
+  }
+
   const allBooks = [...BIBLE_BOOKS['Old Testament'], ...BIBLE_BOOKS['New Testament']]
   const filteredBooks = searchQuery
     ? allBooks.filter(b => b.toLowerCase().includes(searchQuery.toLowerCase()))
     : null
 
+  const currentFontClass = FONT_SIZES[fontSizeIdx]?.size || FONT_SIZES[1].size
+
   return (
     <AppLayout>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-24 md:pb-8">
         {/* Top Bar */}
         <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <button
-              onClick={() => setShowBookPicker(!showBookPicker)}
-              className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-xl text-sm font-semibold hover:border-primary/50 transition-colors"
-            >
-              <BookOpen className="w-4 h-4 text-primary" />
-              {book} {chapter}
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </button>
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => setShowBookPicker(!showBookPicker)}
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 bg-card border border-border rounded-xl text-sm font-semibold hover:border-primary/50 transition-colors truncate max-w-[200px] sm:max-w-none"
+              >
+                <BookOpen className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="truncate">{book} {chapter}</span>
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </button>
 
-            <button
-              onClick={() => setShowVersionPicker(!showVersionPicker)}
-              className="px-3 py-2 bg-primary/10 text-primary rounded-xl text-sm font-bold hover:bg-primary/20 transition-colors"
-            >
-              {VERSIONS.find(v => v.id === version)?.label || 'KJV'}
-            </button>
+              <div className="flex items-center gap-2">
+                {/* Font Size Control */}
+                <div className="hidden sm:flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+                  <Type className="w-3.5 h-3.5 text-muted-foreground ml-1.5" />
+                  {FONT_SIZES.map((fs, idx) => (
+                    <button
+                      key={fs.label}
+                      onClick={() => changeFontSize(idx)}
+                      className={`px-2 py-1 rounded-lg text-xs font-bold transition-colors ${
+                        fontSizeIdx === idx
+                          ? 'bg-primary text-white'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {fs.label}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setShowVersionPicker(!showVersionPicker)}
+                  className="px-3 py-2 bg-primary/10 text-primary rounded-xl text-sm font-bold hover:bg-primary/20 transition-colors"
+                >
+                  {VERSIONS.find(v => v.id === version)?.label || 'KJV'}
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Font Size Control */}
+            <div className="flex sm:hidden items-center gap-1 mt-2 bg-card border border-border rounded-xl p-1 w-fit">
+              <Type className="w-3.5 h-3.5 text-muted-foreground ml-1.5" />
+              {FONT_SIZES.map((fs, idx) => (
+                <button
+                  key={fs.label}
+                  onClick={() => changeFontSize(idx)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                    fontSizeIdx === idx
+                      ? 'bg-primary text-white'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {fs.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -308,7 +362,7 @@ export function BibleReader() {
         </AnimatePresence>
 
         {/* Reading Area */}
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10 max-w-2xl">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
@@ -321,34 +375,41 @@ export function BibleReader() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              <h2 className="text-2xl font-extrabold mb-6">{book} {chapter}</h2>
-              <div className="prose prose-lg dark:prose-invert max-w-none leading-relaxed">
+              {/* Chapter Header */}
+              <div className="mb-8 sm:mb-10 text-center">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{book}</h2>
+                <p className="text-muted-foreground text-sm mt-1 font-medium">Chapter {chapter}</p>
+                <div className="w-12 h-1 bg-primary/30 rounded-full mx-auto mt-3" />
+              </div>
+
+              {/* Verses — each verse on its own line for clarity */}
+              <div className="space-y-4">
                 {verses.map((v) => (
-                  <span key={v.verse} className="inline">
+                  <p key={v.verse} className={`${currentFontClass} text-foreground/90 font-[420]`}>
                     {v.verse > 0 && (
-                      <sup className="text-primary font-bold text-xs mr-1 select-none">{v.verse}</sup>
+                      <sup className="text-primary font-bold text-[0.65em] mr-1.5 select-none align-top">{v.verse}</sup>
                     )}
-                    <span>{v.text} </span>
-                  </span>
+                    {v.text.trim()}
+                  </p>
                 ))}
               </div>
             </motion.div>
           )}
 
           {/* Navigation */}
-          <div className="flex items-center justify-between mt-12 pt-6 border-t border-border">
+          <div className="flex items-center justify-between mt-12 sm:mt-16 pt-6 border-t border-border">
             <button
               onClick={goPrevChapter}
-              className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-xl text-sm font-medium hover:border-primary/50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2.5 sm:px-4 bg-card border border-border rounded-xl text-sm font-medium hover:border-primary/50 transition-colors"
             >
-              <ChevronLeft className="w-4 h-4" /> Previous
+              <ChevronLeft className="w-4 h-4" /> Prev
             </button>
             <span className="text-sm text-muted-foreground font-medium">
               {chapter} / {maxChapters}
             </span>
             <button
               onClick={goToNextChapter}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2.5 sm:px-4 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
             >
               Next <ChevronRight className="w-4 h-4" />
             </button>
