@@ -7,6 +7,8 @@ export interface AuthUser {
   photoUrl: string | null
   role: 'member' | 'admin'
   membershipStatus: 'visitor' | 'new_convert' | 'member' | 'worker'
+  isOnboarded: boolean
+  department: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -152,4 +154,33 @@ export interface Theme {
   background: string
   foreground: string
   accent: string
+}
+
+// Meetings
+export interface Meeting {
+  id: string
+  title: string
+  description: string | null
+  meetingUrl: string
+  platform: 'google_meet' | 'zoom' | 'teams' | 'other'
+  hostName: string
+  date: string
+  time: string
+  durationMinutes: number
+  notes: string | null
+  recordingUrl: string | null
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CreateMeetingInput {
+  title: string
+  description?: string
+  meetingUrl: string
+  platform: string
+  hostName: string
+  date: string
+  time: string
+  durationMinutes?: number
 }

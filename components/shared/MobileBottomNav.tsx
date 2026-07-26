@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Calendar, Bell, CheckCircle, User } from 'lucide-react'
+import { Home, Calendar, Bell, BookOpen, Video, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/announcements', label: 'News', icon: Bell },
+  { href: '/bible', label: 'Bible', icon: BookOpen },
   { href: '/events', label: 'Events', icon: Calendar },
-  { href: '/attendance', label: 'Attend', icon: CheckCircle },
+  { href: '/meetings', label: 'Meetings', icon: Video },
   { href: '/profile', label: 'Profile', icon: User },
 ]
 
@@ -21,6 +21,7 @@ export function MobileBottomNav() {
   // Don't show on auth pages or landing page when not logged in
   if (!user) return null
   if (pathname.startsWith('/auth')) return null
+  if (pathname === '/onboarding') return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/90 backdrop-blur-xl border-t border-border/50 safe-bottom">

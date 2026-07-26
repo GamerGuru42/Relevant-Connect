@@ -110,3 +110,38 @@ export const EVENT_STATUS = {
 // Image upload
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+// Departments
+export const DEPARTMENTS = {
+  CHOIR: 'choir',
+  MEDIA: 'media',
+  USHERING: 'ushering',
+  PROTOCOL: 'protocol',
+  CHILDREN_MINISTRY: 'children_ministry',
+  SECURITY: 'security',
+  TECHNICAL: 'technical',
+  WELFARE: 'welfare',
+  PRAYER: 'prayer',
+  EVANGELISM: 'evangelism',
+} as const
+
+export const DEPARTMENT_OPTIONS = [
+  { value: 'choir', label: 'Choir' },
+  { value: 'media', label: 'Media' },
+  { value: 'ushering', label: 'Ushering' },
+  { value: 'protocol', label: 'Protocol' },
+  { value: 'children_ministry', label: "Children's Ministry" },
+  { value: 'security', label: 'Security' },
+  { value: 'technical', label: 'Technical' },
+  { value: 'welfare', label: 'Welfare' },
+  { value: 'prayer', label: 'Prayer' },
+  { value: 'evangelism', label: 'Evangelism' },
+] as const
+
+// Meeting Platforms
+export const MEETING_PLATFORM_OPTIONS = [
+  { value: 'google_meet', label: 'Google Meet' },
+  { value: 'zoom', label: 'Zoom' },
+  { value: 'teams', label: 'Microsoft Teams' },
+  { value: 'other', label: 'Other' },
+] as const

@@ -38,6 +38,8 @@ export function AppHeader() {
     { href: '/', label: 'Dashboard' },
     { href: '/announcements', label: 'Announcements' },
     { href: '/events', label: 'Events' },
+    { href: '/bible', label: 'Bible' },
+    { href: '/meetings', label: 'Meetings' },
     { href: '/attendance', label: 'Attendance' },
   ]
 
@@ -125,8 +127,7 @@ export function AppHeader() {
 
           {!user && (
              <div className="hidden sm:flex gap-2">
-               <Button variant="outline" size="sm" onClick={() => router.push('/auth/login')}>Login</Button>
-               <Button size="sm" onClick={() => router.push('/auth/signup')}>Register</Button>
+               <Button variant="outline" size="sm" onClick={() => router.push('/auth/login')}>Sign In</Button>
              </div>
           )}
 
@@ -163,8 +164,7 @@ export function AppHeader() {
               ))}
               {!user && (
                 <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border">
-                   <Button variant="outline" className="w-full" onClick={() => { setIsMobileMenuOpen(false); router.push('/auth/login'); }}>Login</Button>
-                   <Button className="w-full" onClick={() => { setIsMobileMenuOpen(false); router.push('/auth/signup'); }}>Register</Button>
+                   <Button className="w-full" onClick={() => { setIsMobileMenuOpen(false); router.push('/auth/login'); }}>Sign In with Google</Button>
                 </div>
               )}
             </nav>

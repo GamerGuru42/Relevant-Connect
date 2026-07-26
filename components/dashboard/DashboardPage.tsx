@@ -1,58 +1,105 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
 import { format } from 'date-fns'
 
 import { announcementService } from '@/services/database/announcementService'
 import { eventService } from '@/services/database/eventService'
-import type { Announcement, Event, ChurchInfo } from '@/types'
-import { attendanceService } from '@/services/database/attendanceService'
-import { churchInfoService } from '@/services/database/churchInfoService'
-import { AppLayout } from '@/components/shared/AppLayout'
+import type { Announcement, Event } from '@/types'
+
+import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { Calendar, User, Settings, Bell, ChevronRight, CheckCircle, BookOpen, Clock, Heart, Users, BookMarked, Briefcase, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+
+interface VerseOfTheDay {
+  text: string;
+  reference: string;
+}
 
 export function DashboardPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
-  const [, setLoading] = useState(true)
-  const [churchInfo, setChurchInfo] = useState<ChurchInfo | null>(null)
+
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [events, setEvents] = useState<Event[]>([])
-  const [attendanceCount, setAttendanceCount] = useState(0)
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([])
+  const [verseOfDay, setVerseOfDay] = useState<VerseOfTheDay | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const isVisitor = user?.membershipStatus === 'visitor'
+  const isNewConvert = user?.membershipStatus === 'new_convert'
+  const isMember = user?.membershipStatus === 'member'
+  const isWorker = user?.membershipStatus === 'worker'
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      // 1. Fetch announcements
+      let categories = ['general']
+      if (isVisitor) categories.push('visitor')
+      if (isNewConvert) categories.push('new_convert')
+      if (isMember) categories.push('member')
+      if (isWorker) categories.push('worker', 'cell_ministry')
+
+      const [recentAnnouncements, futureEvents] = await Promise.all([
+        announcementService.getRecent(categories, 3),
+        eventService.getUpcoming(3)
+      ])
+
+      setAnnouncements(recentAnnouncements)
+      setUpcomingEvents(futureEvents)
+
+      // 2. Fetch Verse of the Day (Deterministic based on date)
+      const today = new Date().toISOString().split('T')[0]
+      const cachedVerse = localStorage.getItem(`verseOfDay-${today}`)
+      
+      if (cachedVerse) {
+        setVerseOfDay(JSON.parse(cachedVerse))
+      } else {
+        // Simple fallback verses if API fails, selected deterministically by day of year
+        const fallbackVerses = [
+          { reference: 'John 3:16', text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.' },
+          { reference: 'Philippians 4:13', text: 'I can do all things through Christ which strengtheneth me.' },
+          { reference: 'Proverbs 3:5-6', text: 'Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.' },
+          { reference: 'Jeremiah 29:11', text: 'For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end.' },
+          { reference: 'Romans 8:28', text: 'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.' }
+        ]
+        
+        try {
+          // Use OurManna API for verse of the day
+          const res = await fetch('https://beta.ourmanna.com/api/v1/get?format=json&order=daily')
+          if (res.ok) {
+            const data = await res.json()
+            const verseData = {
+              text: data.verse.details.text,
+              reference: data.verse.details.reference
+            }
+            setVerseOfDay(verseData)
+            localStorage.setItem(`verseOfDay-${today}`, JSON.stringify(verseData))
+          } else {
+            throw new Error('API failed')
+          }
+        } catch (e) {
+          // Use deterministic fallback
+          const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24)
+          const fallback = fallbackVerses[dayOfYear % fallbackVerses.length]
+          setVerseOfDay(fallback)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [isVisitor, isNewConvert, isMember, isWorker])
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return
-      try {
-        const [info, anns, evts, att] = await Promise.all([
-          churchInfoService.get(),
-          announcementService.getPublished(3),
-          eventService.getUpcoming(),
-          attendanceService.getUserAttendance(user.id)
-        ])
-        setChurchInfo(info)
-        setAnnouncements(anns)
-        setEvents(evts.slice(0, 3))
-        setAttendanceCount(att.length)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
+    if (user) {
+      fetchDashboardData()
     }
-    fetchData()
-  }, [user])
+  }, [user, fetchDashboardData])
 
   if (!user) return null
-
-  const isAdmin = user.role === 'admin'
-  const status = user.membershipStatus || 'visitor'
-  const isVisitor = status === 'visitor'
-  const isNewConvert = status === 'new_convert'
-  const isWorker = status === 'worker'
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },

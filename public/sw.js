@@ -43,8 +43,8 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests (mutations go through sync queue in the app)
   if (request.method !== 'GET') return;
 
-  // Supabase API calls: Network first, fall back to cache
-  if (url.hostname.includes('supabase')) {
+  // Supabase API calls and Bible API: Network first, fall back to cache
+  if (url.hostname.includes('supabase') || url.hostname.includes('bible-api.com')) {
     event.respondWith(networkFirstThenCache(request, DATA_CACHE));
     return;
   }

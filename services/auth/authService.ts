@@ -10,79 +10,13 @@ const mapProfileRow = (row: any): AuthUser => ({
   photoUrl: row.photo_url ?? null,
   role: row.role ?? 'member',
   membershipStatus: row.membership_status ?? MEMBERSHIP_STATUS.VISITOR,
+  isOnboarded: row.is_onboarded ?? false,
+  department: row.department ?? null,
   createdAt: new Date(row.created_at),
   updatedAt: new Date(row.updated_at),
 })
 
 export const authService = {
-  async signup(
-    email: string,
-    password: string,
-    fullName: string,
-    membershipStatus: string
-  ): Promise<AuthUser> {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    const user = data.user
-    if (!user) {
-      throw new Error('Signup failed')
-    }
-
-    const profile = {
-      id: user.id,
-      email,
-      full_name: fullName,
-      phone: null,
-      photo_url: null,
-      role: 'member',
-      membership_status: membershipStatus,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-
-    const { error: profileError } = await supabase.from('profiles').insert(profile)
-    if (profileError) {
-      throw new Error(profileError.message)
-    }
-
-    return mapProfileRow(profile)
-  },
-
-  async login(email: string, password: string): Promise<AuthUser> {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    const user = data.user
-    if (!user) {
-      throw new Error('Login failed')
-    }
-
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError || !profileData) {
-      throw new Error('User profile not found')
-    }
-
-    return mapProfileRow(profileData)
-  },
-
   async loginWithGoogle(): Promise<void> {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -98,16 +32,6 @@ export const authService = {
 
   async logout(): Promise<void> {
     const { error } = await supabase.auth.signOut()
-    if (error) {
-      throw new Error(error.message)
-    }
-  },
-
-  async resetPassword(email: string): Promise<void> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
-    })
-
     if (error) {
       throw new Error(error.message)
     }
@@ -144,6 +68,8 @@ export const authService = {
         photo_url: sessionUser.user_metadata?.avatar_url || null,
         role: 'member',
         membership_status: 'visitor',
+        is_onboarded: false,
+        department: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
@@ -162,6 +88,24 @@ export const authService = {
     return mapProfileRow(profileData)
   },
 
+  async completeOnboarding(
+    userId: string,
+    membershipStatus: string,
+    department: string | null
+  ): Promise<void> {
+    const updateData: any = {
+      membership_status: membershipStatus,
+      is_onboarded: true,
+      department: department,
+      updated_at: new Date().toISOString(),
+    }
+
+    const { error } = await supabase.from('profiles').update(updateData).eq('id', userId)
+    if (error) {
+      throw new Error(error.message)
+    }
+  },
+
   async updateUserProfile(userId: string, updates: Partial<AuthUser>): Promise<void> {
     const updateData: any = {
       updated_at: new Date().toISOString(),
@@ -170,6 +114,8 @@ export const authService = {
     if (updates.fullName !== undefined) updateData.full_name = updates.fullName
     if (updates.phone !== undefined) updateData.phone = updates.phone
     if (updates.photoUrl !== undefined) updateData.photo_url = updates.photoUrl
+    if (updates.membershipStatus !== undefined) updateData.membership_status = updates.membershipStatus
+    if (updates.department !== undefined) updateData.department = updates.department
 
     const { error } = await supabase.from('profiles').update(updateData).eq('id', userId)
     if (error) {
