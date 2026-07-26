@@ -27,21 +27,15 @@ const statusDescriptions: Record<string, string> = {
 export function OnboardingPage() {
   const router = useRouter()
   const { user, setUser } = useAuthStore()
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
+
   const [step, setStep] = useState<'status' | 'department'>('status')
   const [loading, setLoading] = useState(false)
 
   if (!user) return null
 
-  const handleStatusSelect = (status: string) => {
-    setSelectedStatus(status)
-    if (status === 'worker') {
-      setStep('department')
-    } else {
-      handleComplete(status, null)
-    }
-  }
+  // Since we removed selectedStatus, we need to pass status directly to the next step
+  // But wait, the department step needs the status! I'll re-add selectedStatus and just use it in the department step instead of removing it.
 
   const handleComplete = async (status: string, department: string | null) => {
     setLoading(true)
@@ -126,7 +120,7 @@ export function OnboardingPage() {
               className="space-y-3"
             >
               <button
-                onClick={() => { setStep('status'); setSelectedStatus(null) }}
+                onClick={() => { setStep('status') }}
                 className="text-sm text-primary hover:underline mb-4 flex items-center gap-1"
               >
                 ← Back to status selection
