@@ -224,7 +224,7 @@ export function DashboardPage() {
                       <Bell className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Worker's Meeting</h4>
+                      <h4 className="font-bold text-lg">Worker&apos;s Meeting</h4>
                       <p className="text-sm text-muted-foreground">Next meeting: Saturday, 8:00 AM</p>
                     </div>
                   </div>
