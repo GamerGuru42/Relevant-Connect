@@ -20,6 +20,7 @@ CREATE TABLE public.profiles (
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('member', 'admin')),
   membership_status TEXT NOT NULL DEFAULT 'visitor' CHECK (membership_status IN ('visitor', 'new_convert', 'member', 'worker')),
   department TEXT,
+  is_onboarded BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
