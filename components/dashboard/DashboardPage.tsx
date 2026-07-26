@@ -52,7 +52,6 @@ export function DashboardPage() {
   const status = user.membershipStatus || 'visitor'
   const isVisitor = status === 'visitor'
   const isNewConvert = status === 'new_convert'
-  const isMember = status === 'member'
   const isWorker = status === 'worker'
 
   const fadeUp = {
