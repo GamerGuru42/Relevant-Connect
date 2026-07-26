@@ -137,7 +137,7 @@ export function DashboardPage() {
                   <h3 className="text-2xl font-bold mb-2">Connect With Us</h3>
                   <p className="text-white/90 mb-6 max-w-md">We would love to know you better. Fill out our first-timer form and let us officially welcome you to the family!</p>
                   <button className="px-6 py-3 bg-white text-amber-600 font-bold rounded-xl hover:bg-white/90 transition-colors shadow-lg">
-                    I'm a First Timer
+                    I&apos;m a First Timer
                   </button>
                 </motion.div>
               )}
@@ -162,7 +162,7 @@ export function DashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-lg">Workers Meeting</h3>
-                      <p className="text-sm text-muted-foreground">Don't forget the mandatory workers meeting this Sunday at 7:30 AM.</p>
+                      <p className="text-sm text-muted-foreground">Don&apos;t forget the mandatory workers meeting this Sunday at 7:30 AM.</p>
                     </div>
                   </div>
                 </motion.div>
