@@ -34,20 +34,13 @@ export function DashboardPage() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      // 1. Fetch announcements
-      let categories = ['general']
-      if (isVisitor) categories.push('visitor')
-      if (isNewConvert) categories.push('new_convert')
-      if (isMember) categories.push('member')
-      if (isWorker) categories.push('worker', 'cell_ministry')
-
       const [recentAnnouncements, futureEvents] = await Promise.all([
-        announcementService.getRecent(categories, 3),
-        eventService.getUpcoming(3)
+        announcementService.getPublished(3),
+        eventService.getUpcoming()
       ])
 
       setAnnouncements(recentAnnouncements)
-      setUpcomingEvents(futureEvents)
+      setUpcomingEvents(futureEvents.slice(0, 3))
 
       // 2. Fetch Verse of the Day (Deterministic based on date)
       const today = new Date().toISOString().split('T')[0]
