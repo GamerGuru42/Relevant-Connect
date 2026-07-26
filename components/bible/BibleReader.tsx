@@ -37,6 +37,7 @@ const CHAPTER_COUNTS: Record<string, number> = {
 }
 
 const VERSIONS = [
+  { id: 'niv', label: 'NIV', full: 'New International Version' },
   { id: 'kjv', label: 'KJV', full: 'King James Version' },
   { id: 'web', label: 'WEB', full: 'World English Bible' },
   { id: 'asv', label: 'ASV', full: 'American Standard Version' },
@@ -62,7 +63,7 @@ interface BibleVerse {
 export function BibleReader() {
   const [book, setBook] = useState('Genesis')
   const [chapter, setChapter] = useState(1)
-  const [version, setVersion] = useState('kjv')
+  const [version, setVersion] = useState('niv') // Default to NIV as requested
   const [verses, setVerses] = useState<BibleVerse[]>([])
   const [loading, setLoading] = useState(false)
   const [showBookPicker, setShowBookPicker] = useState(false)
@@ -88,15 +89,30 @@ export function BibleReader() {
   const fetchChapter = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(
-        `https://bible-api.com/${encodeURIComponent(book)}+${chapter}?translation=${version}`
-      )
-      if (!res.ok) throw new Error('Failed to fetch')
-      const data = await res.json()
-      if (data.verses) {
-        setVerses(data.verses)
-      } else if (data.text) {
-        setVerses([{ book_name: book, chapter, verse: 1, text: data.text }])
+      if (version === 'niv') {
+        const allBooks = [...BIBLE_BOOKS['Old Testament'], ...BIBLE_BOOKS['New Testament']]
+        const bookIndex = allBooks.indexOf(book) + 1
+        const res = await fetch(`https://bolls.life/get-chapter/NIV/${bookIndex}/${chapter}/`)
+        if (!res.ok) throw new Error('Failed to fetch NIV')
+        const data = await res.json()
+        const mappedVerses = data.map((v: any) => ({
+          book_name: book,
+          chapter: chapter,
+          verse: v.verse,
+          text: v.text.replace(/<[^>]*>?/gm, ' ').replace(/&nbsp;/g, ' ').trim()
+        }))
+        setVerses(mappedVerses)
+      } else {
+        const res = await fetch(
+          `https://bible-api.com/${encodeURIComponent(book)}+${chapter}?translation=${version}`
+        )
+        if (!res.ok) throw new Error('Failed to fetch')
+        const data = await res.json()
+        if (data.verses) {
+          setVerses(data.verses)
+        } else if (data.text) {
+          setVerses([{ book_name: book, chapter, verse: 1, text: data.text }])
+        }
       }
       localStorage.setItem('bible-reading-position', JSON.stringify({ book, chapter, version }))
     } catch (err) {
