@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Calendar, Bell, BookOpen, Video, User } from 'lucide-react'
+import { Home, Calendar, BookOpen, Video, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
 
