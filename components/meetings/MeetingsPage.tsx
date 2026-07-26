@@ -7,7 +7,7 @@ import type { Meeting } from '@/types'
 import { format } from 'date-fns'
 import { Video, Calendar, Clock, User, Share2, Plus, ExternalLink } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
-import Link from 'next/link'
+
 
 export function MeetingsPage() {
   const user = useAuthStore((state) => state.user)
