@@ -3,12 +3,12 @@ import type { AttendanceRecord } from '@/types'
 
 const mapAttendanceRow = (row: any): AttendanceRecord => ({
   id: row.id,
-  eventId: row.eventId,
-  userId: row.userId,
+  eventId: row.event_id,
+  userId: row.user_id,
   method: row.method,
-  recordedBy: row.recordedBy,
+  recordedBy: row.recorded_by,
   timestamp: new Date(row.timestamp),
-  updatedAt: new Date(row.updatedAt),
+  updatedAt: new Date(row.updated_at),
 })
 
 export const attendanceService = {
@@ -20,12 +20,12 @@ export const attendanceService = {
   ): Promise<string> {
     const { data, error } = await supabase.from('attendance').insert([
       {
-        eventId,
-        userId,
+        event_id: eventId,
+        user_id: userId,
         method,
-        recordedBy: recordedBy || null,
+        recorded_by: recordedBy || null,
         timestamp: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
     ]).select('id').single()
 
@@ -37,7 +37,7 @@ export const attendanceService = {
   },
 
   async getEventAttendance(eventId: string): Promise<AttendanceRecord[]> {
-    const { data, error } = await supabase.from('attendance').select('*').eq('eventId', eventId)
+    const { data, error } = await supabase.from('attendance').select('*').eq('event_id', eventId)
 
     if (error) {
       throw new Error(error.message)
@@ -47,7 +47,7 @@ export const attendanceService = {
   },
 
   async getUserAttendance(userId: string): Promise<AttendanceRecord[]> {
-    const { data, error } = await supabase.from('attendance').select('*').eq('userId', userId)
+    const { data, error } = await supabase.from('attendance').select('*').eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)
@@ -60,8 +60,8 @@ export const attendanceService = {
     const { count, error } = await supabase
       .from('attendance')
       .select('id', { count: 'exact', head: true })
-      .eq('eventId', eventId)
-      .eq('userId', userId)
+      .eq('event_id', eventId)
+      .eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)
@@ -74,7 +74,7 @@ export const attendanceService = {
     const { count, error } = await supabase
       .from('attendance')
       .select('id', { count: 'exact', head: true })
-      .eq('eventId', eventId)
+      .eq('event_id', eventId)
 
     if (error) {
       throw new Error(error.message)
@@ -86,11 +86,11 @@ export const attendanceService = {
   async generateCode(eventId: string): Promise<string> {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase()
 
-    const { error } = await supabase.from('attendanceCodes').upsert({
-      eventId,
+    const { error } = await supabase.from('attendance_codes').upsert({
+      event_id: eventId,
       code,
-      generatedAt: new Date().toISOString(),
-    }, { onConflict: 'eventId' })
+      generated_at: new Date().toISOString(),
+    }, { onConflict: 'event_id' })
 
     if (error) {
       throw new Error(error.message)
@@ -101,9 +101,9 @@ export const attendanceService = {
 
   async validateCode(eventId: string, code: string): Promise<boolean> {
     const { data, error } = await supabase
-      .from('attendanceCodes')
+      .from('attendance_codes')
       .select('code')
-      .eq('eventId', eventId)
+      .eq('event_id', eventId)
       .maybeSingle()
 
     if (error) {
@@ -115,9 +115,9 @@ export const attendanceService = {
 
   async getCode(eventId: string): Promise<string | null> {
     const { data, error } = await supabase
-      .from('attendanceCodes')
+      .from('attendance_codes')
       .select('code')
-      .eq('eventId', eventId)
+      .eq('event_id', eventId)
       .maybeSingle()
 
     if (error) {

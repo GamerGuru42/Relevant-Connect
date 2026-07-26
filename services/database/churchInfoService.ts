@@ -3,19 +3,19 @@ import type { ChurchInfo } from '@/types'
 
 const mapChurchInfoRow = (row: any): ChurchInfo => ({
   id: row.id,
-  churchName: row.churchName,
-  pastorName: row.pastorName,
+  churchName: row.church_name,
+  pastorName: row.pastor_name,
   address: row.address,
-  contactPhone: row.contactPhone,
-  contactEmail: row.contactEmail,
-  serviceTimes: row.serviceTimes,
-  aboutText: row.aboutText,
-  logoUrl: row.logoUrl ?? null,
-  primaryColor: row.primaryColor ?? null,
-  secondaryColor: row.secondaryColor ?? null,
-  todayScripture: row.todayScripture ?? null,
-  updatedBy: row.updatedBy,
-  updatedAt: new Date(row.updatedAt),
+  contactPhone: row.contact_phone,
+  contactEmail: row.contact_email,
+  serviceTimes: row.service_times,
+  aboutText: row.about_text,
+  logoUrl: row.logo_url ?? null,
+  primaryColor: row.primary_color ?? null,
+  secondaryColor: row.secondary_color ?? null,
+  todayScripture: row.today_scripture ?? null,
+  updatedBy: row.updated_by,
+  updatedAt: new Date(row.updated_at),
 })
 
 export const churchInfoService = {
@@ -37,9 +37,19 @@ export const churchInfoService = {
     const { error } = await supabase.from('church_info').upsert(
       {
         id: 'churchInfo',
-        ...data,
-        updatedBy: userId,
-        updatedAt: new Date().toISOString(),
+        church_name: data.churchName,
+        pastor_name: data.pastorName,
+        address: data.address,
+        contact_phone: data.contactPhone,
+        contact_email: data.contactEmail,
+        service_times: data.serviceTimes,
+        about_text: data.aboutText,
+        logo_url: data.logoUrl,
+        primary_color: data.primaryColor,
+        secondary_color: data.secondaryColor,
+        today_scripture: data.todayScripture,
+        updated_by: userId,
+        updated_at: new Date().toISOString(),
       },
       { onConflict: 'id' }
     )
@@ -51,14 +61,18 @@ export const churchInfoService = {
 
   async update(data: Partial<ChurchInfo>, userId: string): Promise<void> {
     const updateData: any = {
-      ...data,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString(),
+      updated_by: userId,
+      updated_at: new Date().toISOString(),
     }
 
-    if (updateData.updatedAt instanceof Date) {
-      updateData.updatedAt = updateData.updatedAt.toISOString()
-    }
+    if (data.churchName !== undefined) updateData.church_name = data.churchName
+    if (data.pastorName !== undefined) updateData.pastor_name = data.pastorName
+    if (data.address !== undefined) updateData.address = data.address
+    if (data.contactPhone !== undefined) updateData.contact_phone = data.contactPhone
+    if (data.contactEmail !== undefined) updateData.contact_email = data.contactEmail
+    if (data.serviceTimes !== undefined) updateData.service_times = data.serviceTimes
+    if (data.aboutText !== undefined) updateData.about_text = data.aboutText
+    if (data.todayScripture !== undefined) updateData.today_scripture = data.todayScripture
 
     const { error } = await supabase.from('church_info').update(updateData).eq('id', 'churchInfo')
     if (error) {
@@ -70,9 +84,9 @@ export const churchInfoService = {
     const { error } = await supabase
       .from('church_info')
       .update({
-        todayScripture: scripture,
-        updatedBy: userId,
-        updatedAt: new Date().toISOString(),
+        today_scripture: scripture,
+        updated_by: userId,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', 'churchInfo')
 
@@ -88,13 +102,13 @@ export const churchInfoService = {
     userId?: string
   ): Promise<void> {
     const updateData: any = {
-      updatedAt: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
-    if (logoUrl !== undefined) updateData.logoUrl = logoUrl
-    if (primaryColor !== undefined) updateData.primaryColor = primaryColor
-    if (secondaryColor !== undefined) updateData.secondaryColor = secondaryColor
-    if (userId) updateData.updatedBy = userId
+    if (logoUrl !== undefined) updateData.logo_url = logoUrl
+    if (primaryColor !== undefined) updateData.primary_color = primaryColor
+    if (secondaryColor !== undefined) updateData.secondary_color = secondaryColor
+    if (userId) updateData.updated_by = userId
 
     const { error } = await supabase.from('church_info').update(updateData).eq('id', 'churchInfo')
     if (error) {

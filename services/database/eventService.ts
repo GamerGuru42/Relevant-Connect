@@ -9,17 +9,17 @@ const mapEventRow = (row: any): Event => ({
   category: row.category,
   date: row.date,
   time: row.time,
-  venueName: row.venueName,
-  venueAddress: row.venueAddress,
-  venueMapLink: row.venueMapLink ?? null,
+  venueName: row.venue_name,
+  venueAddress: row.venue_address,
+  venueMapLink: row.venue_map_link ?? null,
   speaker: row.speaker ?? null,
-  registrationLimit: row.registrationLimit ?? null,
-  posterUrl: row.posterUrl ?? null,
-  publishAt: row.publishAt ? new Date(row.publishAt) : null,
-  createdBy: row.createdBy,
-  createdAt: new Date(row.createdAt),
-  updatedAt: new Date(row.updatedAt),
-  deletedAt: row.deletedAt ? new Date(row.deletedAt) : null,
+  registrationLimit: row.registration_limit ?? null,
+  posterUrl: row.poster_url ?? null,
+  publishAt: row.publish_at ? new Date(row.publish_at) : null,
+  createdBy: row.created_by,
+  createdAt: new Date(row.created_at),
+  updatedAt: new Date(row.updated_at),
+  deletedAt: row.deleted_at ? new Date(row.deleted_at) : null,
 })
 
 export const eventService = {
@@ -29,8 +29,8 @@ export const eventService = {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .lte('publishAt', new Date().toISOString())
-        .is('deletedAt', null)
+        .lte('publish_at', new Date().toISOString())
+        .is('deleted_at', null)
         .order('date', { ascending: true })
         .limit(pageSize)
 
@@ -81,17 +81,17 @@ export const eventService = {
       category: input.category,
       date: input.date,
       time: input.time,
-      venueName: input.venueName,
-      venueAddress: input.venueAddress,
-      venueMapLink: input.venueMapLink || null,
+      venue_name: input.venueName,
+      venue_address: input.venueAddress,
+      venue_map_link: input.venueMapLink || null,
       speaker: input.speaker || null,
-      registrationLimit: input.registrationLimit ?? null,
-      posterUrl: input.posterUrl || null,
-      publishAt: input.publishAt ? input.publishAt.toISOString() : null,
-      createdBy: userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      deletedAt: null,
+      registration_limit: input.registrationLimit ?? null,
+      poster_url: input.posterUrl || null,
+      publish_at: input.publishAt ? input.publishAt.toISOString() : null,
+      created_by: userId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
     }
     try {
       const { data, error } = await supabase.from('events').insert([payload]).select('id').single()
@@ -113,14 +113,14 @@ export const eventService = {
       category: input.category,
       date: input.date,
       time: input.time,
-      venueName: input.venueName,
-      venueAddress: input.venueAddress,
-      venueMapLink: input.venueMapLink || null,
+      venue_name: input.venueName,
+      venue_address: input.venueAddress,
+      venue_map_link: input.venueMapLink || null,
       speaker: input.speaker || null,
-      registrationLimit: input.registrationLimit ?? null,
-      posterUrl: input.posterUrl || null,
-      publishAt: input.publishAt ? input.publishAt.toISOString() : null,
-      updatedAt: new Date().toISOString(),
+      registration_limit: input.registrationLimit ?? null,
+      poster_url: input.posterUrl || null,
+      publish_at: input.publishAt ? input.publishAt.toISOString() : null,
+      updated_at: new Date().toISOString(),
     }
     try {
       const { error } = await supabase.from('events').update(payload).eq('id', id)
@@ -136,7 +136,7 @@ export const eventService = {
 
   async delete(id: string): Promise<void> {
     const { error } = await supabase.from('events').update({
-      deletedAt: new Date().toISOString(),
+      deleted_at: new Date().toISOString(),
     }).eq('id', id)
 
     if (error) {
@@ -162,8 +162,8 @@ export const eventService = {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .lte('publishAt', new Date().toISOString())
-        .is('deletedAt', null)
+        .lte('publish_at', new Date().toISOString())
+        .is('deleted_at', null)
         .gte('date', today)
         .lte('date', future)
         .order('date', { ascending: true })

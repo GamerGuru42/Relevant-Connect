@@ -6,13 +6,13 @@ const mapAnnouncementRow = (row: any): Announcement => ({
   id: row.id,
   title: row.title,
   body: row.body,
-  imageUrl: row.imageUrl ?? null,
+  imageUrl: row.image_url ?? null,
   category: row.category,
-  publishAt: row.publishAt ? new Date(row.publishAt) : null,
-  createdBy: row.createdBy,
-  createdAt: new Date(row.createdAt),
-  updatedAt: new Date(row.updatedAt),
-  deletedAt: row.deletedAt ? new Date(row.deletedAt) : null,
+  publishAt: row.publish_at ? new Date(row.publish_at) : null,
+  createdBy: row.created_by,
+  createdAt: new Date(row.created_at),
+  updatedAt: new Date(row.updated_at),
+  deletedAt: row.deleted_at ? new Date(row.deleted_at) : null,
 })
 
 export const announcementService = {
@@ -22,9 +22,9 @@ export const announcementService = {
       const { data, error } = await supabase
         .from('announcements')
         .select('*')
-        .lte('publishAt', new Date().toISOString())
-        .is('deletedAt', null)
-        .order('publishAt', { ascending: false })
+        .lte('publish_at', new Date().toISOString())
+        .is('deleted_at', null)
+        .order('publish_at', { ascending: false })
         .limit(pageSize)
 
       if (error) throw new Error(error.message)
@@ -46,7 +46,7 @@ export const announcementService = {
       const { data, error } = await supabase
         .from('announcements')
         .select('*')
-        .order('createdAt', { ascending: false })
+        .order('created_at', { ascending: false })
 
       if (error) throw new Error(error.message)
       const results = (data ?? []).map(mapAnnouncementRow)
@@ -79,13 +79,13 @@ export const announcementService = {
     const payload = {
       title: input.title,
       body: input.body,
-      imageUrl: input.imageUrl || null,
+      image_url: input.imageUrl || null,
       category: input.category,
-      publishAt: input.publishAt ? input.publishAt.toISOString() : null,
-      createdBy: userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      deletedAt: null,
+      publish_at: input.publishAt ? input.publishAt.toISOString() : null,
+      created_by: userId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
     }
     try {
       const { data, error } = await supabase.from('announcements').insert([payload]).select('id').single()
@@ -104,10 +104,10 @@ export const announcementService = {
     const payload = {
       title: input.title,
       body: input.body,
-      imageUrl: input.imageUrl || null,
+      image_url: input.imageUrl || null,
       category: input.category,
-      publishAt: input.publishAt ? input.publishAt.toISOString() : null,
-      updatedAt: new Date().toISOString(),
+      publish_at: input.publishAt ? input.publishAt.toISOString() : null,
+      updated_at: new Date().toISOString(),
     }
     try {
       const { error } = await supabase.from('announcements').update(payload).eq('id', id)
@@ -123,7 +123,7 @@ export const announcementService = {
 
   async delete(id: string): Promise<void> {
     const { error } = await supabase.from('announcements').update({
-      deletedAt: new Date().toISOString(),
+      deleted_at: new Date().toISOString(),
     }).eq('id', id)
 
     if (error) {

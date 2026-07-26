@@ -3,20 +3,20 @@ import type { EventRegistration } from '@/types'
 
 const mapRegistrationRow = (row: any): EventRegistration => ({
   id: row.id,
-  eventId: row.eventId,
-  userId: row.userId,
-  registeredAt: new Date(row.registeredAt),
-  updatedAt: new Date(row.updatedAt),
+  eventId: row.event_id,
+  userId: row.user_id,
+  registeredAt: new Date(row.registered_at),
+  updatedAt: new Date(row.updated_at),
 })
 
 export const eventRegistrationService = {
   async register(eventId: string, userId: string): Promise<string> {
-    const { data, error } = await supabase.from('eventRegistrations').insert([
+    const { data, error } = await supabase.from('event_registrations').insert([
       {
-        eventId,
-        userId,
-        registeredAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        event_id: eventId,
+        user_id: userId,
+        registered_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
     ]).select('id').single()
 
@@ -29,10 +29,10 @@ export const eventRegistrationService = {
 
   async unregister(eventId: string, userId: string): Promise<void> {
     const { error } = await supabase
-      .from('eventRegistrations')
+      .from('event_registrations')
       .delete()
-      .eq('eventId', eventId)
-      .eq('userId', userId)
+      .eq('event_id', eventId)
+      .eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)
@@ -41,9 +41,9 @@ export const eventRegistrationService = {
 
   async getUserRegistrations(userId: string): Promise<EventRegistration[]> {
     const { data, error } = await supabase
-      .from('eventRegistrations')
+      .from('event_registrations')
       .select('*')
-      .eq('userId', userId)
+      .eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)
@@ -54,9 +54,9 @@ export const eventRegistrationService = {
 
   async getEventRegistrations(eventId: string): Promise<EventRegistration[]> {
     const { data, error } = await supabase
-      .from('eventRegistrations')
+      .from('event_registrations')
       .select('*')
-      .eq('eventId', eventId)
+      .eq('event_id', eventId)
 
     if (error) {
       throw new Error(error.message)
@@ -67,10 +67,10 @@ export const eventRegistrationService = {
 
   async isRegistered(eventId: string, userId: string): Promise<boolean> {
     const { count, error } = await supabase
-      .from('eventRegistrations')
+      .from('event_registrations')
       .select('id', { count: 'exact', head: true })
-      .eq('eventId', eventId)
-      .eq('userId', userId)
+      .eq('event_id', eventId)
+      .eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)
@@ -81,9 +81,9 @@ export const eventRegistrationService = {
 
   async getRegistrationCount(eventId: string): Promise<number> {
     const { count, error } = await supabase
-      .from('eventRegistrations')
+      .from('event_registrations')
       .select('id', { count: 'exact', head: true })
-      .eq('eventId', eventId)
+      .eq('event_id', eventId)
 
     if (error) {
       throw new Error(error.message)

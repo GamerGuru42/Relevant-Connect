@@ -4,14 +4,14 @@ import { MEMBERSHIP_STATUS } from '@/constants/enums'
 
 const mapProfileRow = (row: any): AuthUser => ({
   id: row.id,
-  fullName: row.fullName,
+  fullName: row.full_name,
   email: row.email,
   phone: row.phone ?? null,
-  photoUrl: row.photoUrl ?? null,
+  photoUrl: row.photo_url ?? null,
   role: row.role ?? 'member',
-  membershipStatus: row.membershipStatus ?? MEMBERSHIP_STATUS.VISITOR,
-  createdAt: new Date(row.createdAt),
-  updatedAt: new Date(row.updatedAt),
+  membershipStatus: row.membership_status ?? MEMBERSHIP_STATUS.VISITOR,
+  createdAt: new Date(row.created_at),
+  updatedAt: new Date(row.updated_at),
 })
 
 export const authService = {
@@ -38,13 +38,13 @@ export const authService = {
     const profile = {
       id: user.id,
       email,
-      fullName,
+      full_name: fullName,
       phone: null,
-      photoUrl: null,
+      photo_url: null,
       role: 'member',
-      membershipStatus,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      membership_status: membershipStatus,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
     const { error: profileError } = await supabase.from('profiles').insert(profile)
@@ -130,10 +130,33 @@ export const authService = {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
     if (profileError || !profileData) {
-      return null
+      // Auto-create profile for Google OAuth users who don't have one yet
+      const sessionUser = session.user
+      const fullName = sessionUser.user_metadata?.full_name || sessionUser.user_metadata?.name || sessionUser.email?.split('@')[0] || 'User'
+      const profile = {
+        id: userId,
+        email: sessionUser.email || '',
+        full_name: fullName,
+        phone: null,
+        photo_url: sessionUser.user_metadata?.avatar_url || null,
+        role: 'member',
+        membership_status: 'visitor',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+
+      const { error: insertError } = await supabase.from('profiles').insert(profile)
+      if (insertError) {
+        // Profile might already exist if there was a race condition — try fetching again
+        const { data: retryData } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+        if (retryData) return mapProfileRow(retryData)
+        return null
+      }
+
+      return mapProfileRow(profile)
     }
 
     return mapProfileRow(profileData)
@@ -141,9 +164,12 @@ export const authService = {
 
   async updateUserProfile(userId: string, updates: Partial<AuthUser>): Promise<void> {
     const updateData: any = {
-      ...updates,
-      updatedAt: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
+
+    if (updates.fullName !== undefined) updateData.full_name = updates.fullName
+    if (updates.phone !== undefined) updateData.phone = updates.phone
+    if (updates.photoUrl !== undefined) updateData.photo_url = updates.photoUrl
 
     const { error } = await supabase.from('profiles').update(updateData).eq('id', userId)
     if (error) {

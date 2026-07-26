@@ -12,7 +12,7 @@ import { attendanceService } from '@/services/database/attendanceService'
 import { churchInfoService } from '@/services/database/churchInfoService'
 import { AppLayout } from '@/components/shared/AppLayout'
 import { motion } from 'framer-motion'
-import { Calendar, User, Settings, Bell, ChevronRight, CheckCircle, BookOpen, Clock, Heart } from 'lucide-react'
+import { Calendar, User, Settings, Bell, ChevronRight, CheckCircle, BookOpen, Clock, Heart, Users, BookMarked, Briefcase, Sparkles } from 'lucide-react'
 
 export function DashboardPage() {
   const router = useRouter()
@@ -49,7 +49,11 @@ export function DashboardPage() {
   if (!user) return null
 
   const isAdmin = user.role === 'admin'
-  const isVisitor = user.membershipStatus === 'visitor'
+  const status = user.membershipStatus || 'visitor'
+  const isVisitor = status === 'visitor'
+  const isNewConvert = status === 'new_convert'
+  const isMember = status === 'member'
+  const isWorker = status === 'worker'
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -59,6 +63,13 @@ export function DashboardPage() {
       transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' },
     }),
   }
+
+  // Tailored Welcome Message
+  let welcomeMessage = ''
+  if (isVisitor) welcomeMessage = "We're so glad you're here! Explore our community and see what's happening."
+  else if (isNewConvert) welcomeMessage = "Welcome to the family! We've prepared special resources to help you grow in your faith journey."
+  else if (isWorker) welcomeMessage = "Thank you for your service to the ministry. Stay updated with your departmental news."
+  else welcomeMessage = "Stay connected, grow in the Word, and never miss an update from the fellowship."
 
   return (
     <AppLayout>
@@ -76,14 +87,21 @@ export function DashboardPage() {
               <motion.p custom={0} variants={fadeUp} className="text-white/70 font-medium tracking-widest uppercase text-sm mb-3">
                 {format(new Date(), 'EEEE, MMMM do, yyyy')}
               </motion.p>
-              <motion.h1 custom={1} variants={fadeUp} className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4">
-                Welcome back, {user.fullName.split(' ')[0]} 👋
+              <motion.h1 custom={1} variants={fadeUp} className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4 flex items-center gap-3">
+                Welcome back, {user.fullName.split(' ')[0]} 
+                {isNewConvert && <Sparkles className="w-8 h-8 text-yellow-400" />}
+                {isWorker && <Briefcase className="w-8 h-8 text-amber-400" />}
+                {(!isNewConvert && !isWorker) && '👋'}
               </motion.h1>
               <motion.p custom={2} variants={fadeUp} className="text-lg text-white/80 leading-relaxed max-w-xl">
-                {isVisitor 
-                  ? "We're so glad you're here! Explore our community and see what's happening."
-                  : `You are currently logged in as a ${user.membershipStatus}. Stay updated with the latest events and announcements.`}
+                {welcomeMessage}
               </motion.p>
+              
+              <motion.div custom={2.5} variants={fadeUp} className="mt-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-sm font-medium capitalize">
+                  {status.replace('_', ' ')}
+                </span>
+              </motion.div>
             </motion.div>
           </div>
         </section>
@@ -95,7 +113,7 @@ export function DashboardPage() {
             {/* Left Column: Quick Actions & Scripture */}
             <div className="lg:col-span-2 space-y-8">
               
-              {/* Scripture of the Day */}
+              {/* Scripture of the Day (Hidden for mere visitors to encourage joining) */}
               {churchInfo?.todayScripture && !isVisitor && (
                 <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
@@ -109,6 +127,43 @@ export function DashboardPage() {
                     <blockquote className="text-2xl font-medium text-foreground leading-snug mb-4 italic">
                       &quot;{churchInfo.todayScripture}&quot;
                     </blockquote>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Special Sections Based on Status */}
+              {isVisitor && (
+                <motion.div custom={3.5} initial="hidden" animate="visible" variants={fadeUp} className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-8 shadow-xl text-white">
+                  <h3 className="text-2xl font-bold mb-2">Connect With Us</h3>
+                  <p className="text-white/90 mb-6 max-w-md">We would love to know you better. Fill out our first-timer form and let us officially welcome you to the family!</p>
+                  <button className="px-6 py-3 bg-white text-amber-600 font-bold rounded-xl hover:bg-white/90 transition-colors shadow-lg">
+                    I'm a First Timer
+                  </button>
+                </motion.div>
+              )}
+
+              {isNewConvert && (
+                <motion.div custom={3.5} initial="hidden" animate="visible" variants={fadeUp} className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 shadow-xl text-white flex flex-col md:flex-row gap-6 items-center justify-between">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><BookMarked className="w-6 h-6" /> Foundation School</h3>
+                    <p className="text-white/90 max-w-md">Start your spiritual journey on the right foot. Access the foundation school materials tailored for you.</p>
+                  </div>
+                  <button className="px-6 py-3 bg-white text-emerald-600 font-bold rounded-xl hover:bg-white/90 transition-colors shadow-lg whitespace-nowrap">
+                    Start Learning
+                  </button>
+                </motion.div>
+              )}
+
+              {isWorker && (
+                <motion.div custom={3.5} initial="hidden" animate="visible" variants={fadeUp} className="bg-card border-l-4 border-l-amber-500 rounded-3xl p-6 shadow-xl flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                      <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Workers Meeting</h3>
+                      <p className="text-sm text-muted-foreground">Don't forget the mandatory workers meeting this Sunday at 7:30 AM.</p>
+                    </div>
                   </div>
                 </motion.div>
               )}

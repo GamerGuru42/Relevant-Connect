@@ -3,14 +3,14 @@ import type { Notification } from '@/types'
 
 const mapNotificationRow = (row: any): Notification => ({
   id: row.id,
-  userId: row.userId,
+  userId: row.user_id,
   type: row.type,
   title: row.title,
   body: row.body,
-  linkTo: row.linkTo ?? null,
+  linkTo: row.link_to ?? null,
   read: row.read,
-  createdAt: new Date(row.createdAt),
-  updatedAt: new Date(row.updatedAt),
+  createdAt: new Date(row.created_at),
+  updatedAt: new Date(row.updated_at),
 })
 
 export const notificationService = {
@@ -23,14 +23,14 @@ export const notificationService = {
   ): Promise<void> {
     const { error } = await supabase.from('notifications').insert([
       {
-        userId,
+        user_id: userId,
         type,
         title,
         body,
-        linkTo: linkTo || null,
+        link_to: linkTo || null,
         read: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
     ])
 
@@ -47,14 +47,14 @@ export const notificationService = {
     linkTo?: string | null
   ): Promise<void> {
     const notifications = userIds.map((userId) => ({
-      userId,
+      user_id: userId,
       type,
       title,
       body,
-      linkTo: linkTo || null,
+      link_to: linkTo || null,
       read: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }))
 
     const { error } = await supabase.from('notifications').insert(notifications)
@@ -67,8 +67,8 @@ export const notificationService = {
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
-      .eq('userId', userId)
-      .order('createdAt', { ascending: false })
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
     if (error) {
       throw new Error(error.message)
@@ -81,7 +81,7 @@ export const notificationService = {
     const { count, error } = await supabase
       .from('notifications')
       .select('id', { count: 'exact', head: true })
-      .eq('userId', userId)
+      .eq('user_id', userId)
       .eq('read', false)
 
     if (error) {
@@ -96,10 +96,10 @@ export const notificationService = {
       .from('notifications')
       .update({
         read: true,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .eq('id', notificationId)
-      .eq('userId', userId)
+      .eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)
@@ -111,9 +111,9 @@ export const notificationService = {
       .from('notifications')
       .update({
         read: true,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
-      .eq('userId', userId)
+      .eq('user_id', userId)
       .eq('read', false)
 
     if (error) {
@@ -126,7 +126,7 @@ export const notificationService = {
       .from('notifications')
       .delete()
       .eq('id', notificationId)
-      .eq('userId', userId)
+      .eq('user_id', userId)
 
     if (error) {
       throw new Error(error.message)

@@ -3,11 +3,11 @@ import type { ActivityLog } from '@/types'
 
 const mapActivityLogRow = (row: any): ActivityLog => ({
   id: row.id,
-  userId: row.userId,
+  userId: row.user_id,
   action: row.action,
   entity: row.entity,
-  entityId: row.entityId,
-  entityLabel: row.entityLabel,
+  entityId: row.entity_id,
+  entityLabel: row.entity_label,
   timestamp: new Date(row.timestamp),
 })
 
@@ -19,13 +19,13 @@ export const activityLogService = {
     entityId: string,
     entityLabel: string
   ): Promise<void> {
-    const { error } = await supabase.from('activityLogs').insert([
+    const { error } = await supabase.from('activity_logs').insert([
       {
-        userId,
+        user_id: userId,
         action,
         entity,
-        entityId,
-        entityLabel,
+        entity_id: entityId,
+        entity_label: entityLabel,
         timestamp: new Date().toISOString(),
       },
     ])
@@ -37,7 +37,7 @@ export const activityLogService = {
 
   async getAll(limit = 50): Promise<ActivityLog[]> {
     const { data, error } = await supabase
-      .from('activityLogs')
+      .from('activity_logs')
       .select('*')
       .order('timestamp', { ascending: false })
       .limit(limit)
@@ -51,9 +51,9 @@ export const activityLogService = {
 
   async getByUser(userId: string): Promise<ActivityLog[]> {
     const { data, error } = await supabase
-      .from('activityLogs')
+      .from('activity_logs')
       .select('*')
-      .eq('userId', userId)
+      .eq('user_id', userId)
       .order('timestamp', { ascending: false })
 
     if (error) {
@@ -65,9 +65,9 @@ export const activityLogService = {
 
   async getByEntity(entityId: string): Promise<ActivityLog[]> {
     const { data, error } = await supabase
-      .from('activityLogs')
+      .from('activity_logs')
       .select('*')
-      .eq('entityId', entityId)
+      .eq('entity_id', entityId)
       .order('timestamp', { ascending: false })
 
     if (error) {
@@ -79,7 +79,7 @@ export const activityLogService = {
 
   async getRecent(count = 10): Promise<ActivityLog[]> {
     const { data, error } = await supabase
-      .from('activityLogs')
+      .from('activity_logs')
       .select('*')
       .order('timestamp', { ascending: false })
       .limit(count)
