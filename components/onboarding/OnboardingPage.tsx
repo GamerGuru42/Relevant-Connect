@@ -35,7 +35,14 @@ export function OnboardingPage() {
   if (!user) return null
 
   // Since we removed selectedStatus, we need to pass status directly to the next step
-  // But wait, the department step needs the status! I'll re-add selectedStatus and just use it in the department step instead of removing it.
+  // But wait, the department step needs the status! Actually I just pass 'worker' in handleComplete if they get to department step.
+  const handleStatusSelect = (status: string) => {
+    if (status === 'worker') {
+      setStep('department')
+    } else {
+      handleComplete(status, null)
+    }
+  }
 
   const handleComplete = async (status: string, department: string | null) => {
     setLoading(true)
