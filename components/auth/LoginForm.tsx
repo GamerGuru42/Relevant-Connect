@@ -4,7 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { authService } from '@/services/auth/authService'
 import { motion } from 'framer-motion'
-import { LogIn } from 'lucide-react'
+import { User } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 
 export function LoginForm() {
