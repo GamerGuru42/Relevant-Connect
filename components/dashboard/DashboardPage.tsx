@@ -9,7 +9,7 @@ import { announcementService } from '@/services/database/announcementService'
 import { eventService } from '@/services/database/eventService'
 import type { Announcement, Event } from '@/types'
 
-import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle, ChevronRight, User, Settings, Users, Briefcase, BookMarked, Sparkles, Heart } from 'lucide-react'
+import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
