@@ -19,6 +19,7 @@ CREATE TABLE public.profiles (
   photo_url TEXT,
   role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('member', 'admin')),
   membership_status TEXT NOT NULL DEFAULT 'visitor' CHECK (membership_status IN ('visitor', 'new_convert', 'member', 'worker')),
+  department TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
