@@ -3,7 +3,7 @@ import { AppLayout } from '@/components/shared/AppLayout'
 import { format } from 'date-fns'
 import { Video, Calendar, Clock, User, ExternalLink } from 'lucide-react'
 import { notFound } from 'next/navigation'
-import type { Metadata, ResolvingMetadata } from 'next'
+import type { Metadata } from 'next'
 
 type Props = {
   params: { id: string }
