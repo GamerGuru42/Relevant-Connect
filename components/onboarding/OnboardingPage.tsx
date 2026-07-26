@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 import { authService } from '@/services/auth/authService'
 import { MEMBERSHIP_STATUS_OPTIONS, DEPARTMENT_OPTIONS } from '@/constants/enums'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Sparkles, Users, BookOpen, UserCheck, Briefcase } from 'lucide-react'
+import { ChevronRight, Sparkles, Users, UserCheck, Briefcase } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import toast from 'react-hot-toast'
 
