@@ -82,7 +82,7 @@ export function AttendPage({ eventId }: { eventId: string }) {
             >
               <CheckCircle2 className="w-24 h-24 text-emerald-500 mb-6" />
             </motion.div>
-            <h2 className="text-3xl font-extrabold mb-2 text-emerald-500">You're checked in!</h2>
+            <h2 className="text-3xl font-extrabold mb-2 text-emerald-500">You&apos;re checked in!</h2>
             <p className="text-muted-foreground mb-8">Your attendance has been recorded successfully.</p>
             
             <div className="w-full bg-muted/50 rounded-2xl p-6 text-left mb-8 border border-border">

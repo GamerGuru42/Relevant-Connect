@@ -9,7 +9,7 @@ import { announcementService } from '@/services/database/announcementService'
 import { eventService } from '@/services/database/eventService'
 import type { Announcement, Event } from '@/types'
 
-import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle } from 'lucide-react'
+import { Bell, Calendar as CalendarIcon, Clock, MapPin, ArrowRight, BookOpen, MessageSquare, CheckCircle, ChevronRight, User, Settings, Users, Briefcase, BookMarked, Sparkles, Heart } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
@@ -103,240 +103,255 @@ export function DashboardPage() {
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' },
-    }),
+    visible: { opacity: 1, y: 0 }
   }
 
-  // Tailored Welcome Message
-  let welcomeMessage = ''
-  if (isVisitor) welcomeMessage = "We're so glad you're here! Explore our community and see what's happening."
-  else if (isNewConvert) welcomeMessage = "Welcome to the family! We've prepared special resources to help you grow in your faith journey."
-  else if (isWorker) welcomeMessage = "Thank you for your service to the ministry. Stay updated with your departmental news."
-  else welcomeMessage = "Stay connected, grow in the Word, and never miss an update from the fellowship."
-
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-background pb-20">
-        
-        {/* ───── Cinematic Welcome Header ───── */}
-        <section className="relative pt-12 pb-24 overflow-hidden rounded-b-[3rem] mb-12">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-primary to-slate-900" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/20 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
-          <div className="absolute inset-0 bg-black/20" />
-
-          <div className="relative z-10 container mx-auto px-6">
-            <motion.div initial="hidden" animate="visible" className="max-w-3xl">
-              <motion.p custom={0} variants={fadeUp} className="text-white/70 font-medium tracking-widest uppercase text-sm mb-3">
-                {format(new Date(), 'EEEE, MMMM do, yyyy')}
-              </motion.p>
-              <motion.h1 custom={1} variants={fadeUp} className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-4 flex items-center gap-3">
-                Welcome back, {user.fullName.split(' ')[0]} 
-                {isNewConvert && <Sparkles className="w-8 h-8 text-yellow-400" />}
-                {isWorker && <Briefcase className="w-8 h-8 text-amber-400" />}
-                {(!isNewConvert && !isWorker) && '👋'}
-              </motion.h1>
-              <motion.p custom={2} variants={fadeUp} className="text-lg text-white/80 leading-relaxed max-w-xl">
-                {welcomeMessage}
-              </motion.p>
-              
-              <motion.div custom={2.5} variants={fadeUp} className="mt-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-sm font-medium capitalize">
-                  {status.replace('_', ' ')}
-                </span>
-              </motion.div>
+    <div className="min-h-screen bg-background/50 pb-24 md:pb-8">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b border-border/40 pb-8 pt-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div 
+            initial="hidden" 
+            animate="visible" 
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } }
+            }}
+            className="flex flex-col md:flex-row md:items-center justify-between gap-6"
+          >
+            <motion.div variants={fadeUp} className="space-y-2">
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                Welcome back, {user.fullName.split(' ')[0]}
+              </h1>
+              <p className="text-muted-foreground text-lg flex items-center gap-2">
+                {format(new Date(), 'EEEE, MMMM do')}
+                <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
+                <span className="capitalize">{user.membershipStatus.replace('_', ' ')}</span>
+              </p>
             </motion.div>
-          </div>
-        </section>
+          </motion.div>
+        </div>
+      </div>
 
-        <main className="container mx-auto px-6 -mt-20 relative z-20">
+      <div className="container mx-auto px-4 sm:px-6 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content Column */}
+          <div className="lg:col-span-2 space-y-8">
             
-            {/* Left Column: Quick Actions & Scripture */}
-            <div className="lg:col-span-2 space-y-8">
+            {/* Quick Actions (Contextual based on status) */}
+            <motion.div 
+              initial="hidden" animate="visible" variants={fadeUp}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            >
+              <Link href="/announcements" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Bell className="w-6 h-6" />
+                </div>
+                <span className="font-semibold text-sm">News</span>
+              </Link>
               
-              {/* Scripture of the Day (Hidden for mere visitors to encourage joining) */}
-              {churchInfo?.todayScripture && !isVisitor && (
-                <motion.div custom={3} initial="hidden" animate="visible" variants={fadeUp} className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
-                  <div className="relative bg-card border border-border/50 rounded-3xl p-8 shadow-xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                        <BookOpen className="w-5 h-5" />
-                      </div>
-                      <h3 className="font-bold text-lg">Word for the Day</h3>
-                    </div>
-                    <blockquote className="text-2xl font-medium text-foreground leading-snug mb-4 italic">
-                      &quot;{churchInfo.todayScripture}&quot;
-                    </blockquote>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Special Sections Based on Status */}
-              {isVisitor && (
-                <motion.div custom={3.5} initial="hidden" animate="visible" variants={fadeUp} className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-8 shadow-xl text-white">
-                  <h3 className="text-2xl font-bold mb-2">Connect With Us</h3>
-                  <p className="text-white/90 mb-6 max-w-md">We would love to know you better. Fill out our first-timer form and let us officially welcome you to the family!</p>
-                  <button className="px-6 py-3 bg-white text-amber-600 font-bold rounded-xl hover:bg-white/90 transition-colors shadow-lg">
-                    I&apos;m a First Timer
-                  </button>
-                </motion.div>
-              )}
-
-              {isNewConvert && (
-                <motion.div custom={3.5} initial="hidden" animate="visible" variants={fadeUp} className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 shadow-xl text-white flex flex-col md:flex-row gap-6 items-center justify-between">
-                  <div>
-                    <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><BookMarked className="w-6 h-6" /> Foundation School</h3>
-                    <p className="text-white/90 max-w-md">Start your spiritual journey on the right foot. Access the foundation school materials tailored for you.</p>
-                  </div>
-                  <button className="px-6 py-3 bg-white text-emerald-600 font-bold rounded-xl hover:bg-white/90 transition-colors shadow-lg whitespace-nowrap">
-                    Start Learning
-                  </button>
-                </motion.div>
-              )}
-
-              {isWorker && (
-                <motion.div custom={3.5} initial="hidden" animate="visible" variants={fadeUp} className="bg-card border-l-4 border-l-amber-500 rounded-3xl p-6 shadow-xl flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
-                      <Users className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">Workers Meeting</h3>
-                      <p className="text-sm text-muted-foreground">Don&apos;t forget the mandatory workers meeting this Sunday at 7:30 AM.</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Navigation Grid */}
-              <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="grid sm:grid-cols-2 gap-4">
-                <button onClick={() => router.push('/announcements')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
-                    <Bell className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-bold text-lg mb-1">Announcements</h3>
-                  <p className="text-sm text-muted-foreground text-left">Stay updated with church news</p>
-                </button>
-
-                <button onClick={() => router.push('/events')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-500 mb-4 group-hover:scale-110 transition-transform">
-                    <Calendar className="w-6 h-6" />
-                  </div>
-                  <h3 className="font-bold text-lg mb-1">Events & Calendar</h3>
-                  <p className="text-sm text-muted-foreground text-left">Never miss a fellowship</p>
-                </button>
-
-                {!isVisitor && (
-                  <>
-                    <button onClick={() => router.push('/attendance')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-                      <div className="w-12 h-12 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-500 mb-4 group-hover:scale-110 transition-transform">
-                        <CheckCircle className="w-6 h-6" />
-                      </div>
-                      <h3 className="font-bold text-lg mb-1">Mark Attendance</h3>
-                      <p className="text-sm text-muted-foreground text-left">Scan QR or enter code</p>
-                    </button>
-
-                    <button onClick={() => router.push('/profile')} className="group flex flex-col items-start bg-card border border-border/50 rounded-3xl p-6 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-                      <div className="w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center text-violet-500 mb-4 group-hover:scale-110 transition-transform">
-                        <User className="w-6 h-6" />
-                      </div>
-                      <h3 className="font-bold text-lg mb-1">My Profile</h3>
-                      <p className="text-sm text-muted-foreground text-left">Manage your information</p>
-                    </button>
-                  </>
-                )}
-              </motion.div>
-
-              {isAdmin && (
-                <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp}>
-                  <button onClick={() => router.push('/admin')} className="w-full group flex items-center justify-between bg-destructive/5 border border-destructive/20 rounded-3xl p-6 hover:bg-destructive/10 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive">
-                        <Settings className="w-6 h-6" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-bold text-lg text-destructive">Admin Dashboard</h3>
-                        <p className="text-sm text-destructive/70">Manage users, events, and church settings</p>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-destructive group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Right Column: Reminders & Stats */}
-            <div className="space-y-6">
+              <Link href="/events" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <CalendarIcon className="w-6 h-6" />
+                </div>
+                <span className="font-semibold text-sm">Events</span>
+              </Link>
               
               {!isVisitor && (
-                <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUp} className="bg-card border border-border/50 rounded-3xl p-6 shadow-xl">
-                  <h3 className="font-bold text-lg flex items-center gap-2 mb-6">
-                    <Heart className="w-5 h-5 text-rose-500" /> My Engagement
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-muted/30 rounded-2xl p-4 text-center">
-                      <p className="text-3xl font-extrabold text-primary mb-1">{attendanceCount}</p>
-                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Attended</p>
-                    </div>
-                    <div className="bg-muted/30 rounded-2xl p-4 text-center">
-                      <p className="text-3xl font-extrabold text-secondary mb-1">{events.length}</p>
-                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Upcoming</p>
-                    </div>
+                <Link href="/attendance" className="flex flex-col items-center justify-center p-6 bg-card border border-border hover:border-primary/50 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <CheckCircle className="w-6 h-6" />
                   </div>
+                  <span className="font-semibold text-sm">Mark Attendance</span>
+                </Link>
+              )}
+            </motion.div>
+
+            {/* Role-Specific Sections */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-6">
+              
+              {/* VISITOR Section */}
+              {isVisitor && (
+                <motion.div variants={fadeUp} className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-8 shadow-xl text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <MessageSquare className="w-32 h-32" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2 relative z-10">We are so glad you are here!</h3>
+                  <p className="text-amber-50 mb-6 max-w-md relative z-10">
+                    Thank you for connecting with us. We would love to get to know you better and help you find your place in our church family.
+                  </p>
+                  <button className="bg-white text-orange-600 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-amber-50 transition-colors relative z-10">
+                    Connect With Us
+                  </button>
                 </motion.div>
               )}
 
-              <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUp} className="bg-card border border-border/50 rounded-3xl p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-bold text-lg flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-amber-500" /> Upcoming Events
-                  </h3>
-                  <button onClick={() => router.push('/events')} className="text-sm font-medium text-primary hover:underline">View All</button>
-                </div>
-                
-                {events.length > 0 ? (
-                  <div className="space-y-4">
-                    {events.map(event => (
-                      <div key={event.id} className="flex gap-4 p-3 rounded-2xl hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => router.push(`/events/${event.id}`)}>
-                        <div className="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary">
-                          <span className="text-xs font-bold uppercase">{format(new Date(event.date), 'MMM')}</span>
-                          <span className="text-lg font-extrabold leading-none">{format(new Date(event.date), 'd')}</span>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-sm line-clamp-1">{event.title}</h4>
-                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> {event.time}
-                          </p>
+              {/* NEW CONVERT Section */}
+              {isNewConvert && (
+                <motion.div variants={fadeUp} className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 shadow-xl text-white relative overflow-hidden">
+                  <h3 className="text-2xl font-bold mb-2">Welcome to the Family!</h3>
+                  <p className="text-emerald-50 mb-6 max-w-md">
+                    Congratulations on making the best decision of your life. Start your journey with our Foundation School classes.
+                  </p>
+                  <button className="bg-white text-teal-700 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-emerald-50 transition-colors">
+                    Start Foundation School
+                  </button>
+                </motion.div>
+              )}
+
+              {/* MEMBER Section */}
+              {isMember && (
+                <motion.div variants={fadeUp} className="bg-card border-l-4 border-l-primary rounded-3xl p-6 shadow-xl flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                      <BookOpen className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg">Join a Cell Group</h4>
+                      <p className="text-sm text-muted-foreground">Grow together in fellowship</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </motion.div>
+              )}
+
+              {/* WORKER Section */}
+              {isWorker && (
+                <motion.div variants={fadeUp} className="bg-card border-l-4 border-l-amber-500 rounded-3xl p-6 shadow-xl flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500">
+                      <Bell className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg">Worker's Meeting</h4>
+                      <p className="text-sm text-muted-foreground">Next meeting: Saturday, 8:00 AM</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </motion.div>
+              )}
+
+            </motion.div>
+
+            {/* Upcoming Events List */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold tracking-tight">Upcoming Events</h2>
+                <Link href="/events" className="text-sm font-medium text-primary hover:underline flex items-center">
+                  View all <ArrowRight className="w-4 h-4 ml-1" />
+                </Link>
+              </div>
+              
+              <div className="grid gap-4">
+                {loading ? (
+                  Array(2).fill(0).map((_, i) => (
+                    <div key={i} className="h-32 bg-card rounded-2xl animate-pulse border border-border"></div>
+                  ))
+                ) : upcomingEvents.length > 0 ? (
+                  upcomingEvents.map((event) => (
+                    <div key={event.id} className="group bg-card border border-border hover:border-primary/30 p-5 rounded-2xl flex flex-col sm:flex-row gap-5 transition-all shadow-sm hover:shadow-md">
+                      <div className="flex-shrink-0 w-16 h-16 bg-primary/10 rounded-xl flex flex-col items-center justify-center text-primary">
+                        <span className="text-xs font-bold uppercase tracking-wider">
+                          {format(new Date(event.date), 'MMM')}
+                        </span>
+                        <span className="text-xl font-black">
+                          {format(new Date(event.date), 'dd')}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg mb-1 truncate group-hover:text-primary transition-colors">{event.title}</h3>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-3">
+                          <span className="flex items-center"><Clock className="w-3.5 h-3.5 mr-1.5" /> {event.time}</span>
+                          <span className="flex items-center truncate"><MapPin className="w-3.5 h-3.5 mr-1.5" /> {event.venueName}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="sm:self-center">
+                        <Link href={`/events/${event.id}`} className="inline-flex items-center justify-center px-4 py-2 bg-secondary/50 hover:bg-secondary text-secondary-foreground text-sm font-semibold rounded-lg transition-colors">
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+                  ))
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p className="text-sm">No upcoming events right now.</p>
+                  <div className="text-center py-8 bg-card border border-border rounded-2xl text-muted-foreground">
+                    No upcoming events scheduled.
                   </div>
                 )}
-              </motion.div>
-
-              <motion.div custom={6} initial="hidden" animate="visible" variants={fadeUp} className="bg-gradient-to-br from-primary to-secondary rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-xl -mr-10 -mt-10"></div>
-                <h3 className="font-bold text-lg mb-2 relative z-10">Stay Informed</h3>
-                <p className="text-sm text-white/80 mb-4 relative z-10">You have {announcements.length} new announcements from the leadership.</p>
-                <button onClick={() => router.push('/announcements')} className="w-full py-2.5 bg-white text-gray-900 font-bold rounded-xl text-sm hover:bg-white/90 transition-colors relative z-10">
-                  Read Announcements
-                </button>
-              </motion.div>
-
-            </div>
+              </div>
+            </motion.div>
           </div>
-        </main>
+
+          {/* Sidebar Column */}
+          <div className="space-y-8">
+            
+            {/* Verse of the Day Widget */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp}>
+              <div className="bg-card border border-border rounded-3xl p-6 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform group-hover:scale-150"></div>
+                
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-primary" /> 
+                  Verse of the Day
+                </h3>
+                
+                {verseOfDay ? (
+                  <>
+                    <blockquote className="text-lg font-medium leading-relaxed mb-4 relative z-10">
+                      &quot;{verseOfDay.text}&quot;
+                    </blockquote>
+                    <p className="text-sm font-bold text-primary relative z-10">— {verseOfDay.reference}</p>
+                  </>
+                ) : (
+                  <div className="animate-pulse space-y-3">
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
+                    <div className="h-4 bg-muted rounded w-full"></div>
+                    <div className="h-4 bg-muted rounded w-5/6"></div>
+                    <div className="h-4 bg-muted rounded w-1/4 mt-4"></div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Recent Announcements Widget */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-card border border-border rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold">Latest News</h3>
+                <Link href="/announcements" className="text-xs font-semibold text-primary hover:underline">View All</Link>
+              </div>
+              
+              <div className="space-y-5">
+                {loading ? (
+                   Array(3).fill(0).map((_, i) => (
+                    <div key={i} className="flex gap-3 animate-pulse">
+                      <div className="w-2 h-2 mt-1.5 rounded-full bg-muted"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 bg-muted rounded w-full"></div>
+                        <div className="h-3 bg-muted rounded w-2/3"></div>
+                      </div>
+                    </div>
+                  ))
+                ) : announcements.length > 0 ? (
+                  announcements.map((announcement) => (
+                    <Link href={`/announcements/${announcement.id}`} key={announcement.id} className="flex gap-3 group">
+                      <div className="w-2 h-2 mt-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors flex-shrink-0"></div>
+                      <div>
+                        <h4 className="text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">{announcement.title}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(new Date(announcement.createdAt), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">No recent announcements.</p>
+                )}
+              </div>
+            </motion.div>
+
+          </div>
+        </div>
       </div>
-    </AppLayout>
+    </div>
   )
 }
