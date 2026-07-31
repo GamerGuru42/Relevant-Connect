@@ -174,10 +174,12 @@ export function ProfilePage() {
                 <p className="text-foreground">{membershipStatusLabel}</p>
               </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Role</label>
-                <p className="text-foreground capitalize">{user.role}</p>
-              </div>
+              {user.membershipStatus === 'worker' && (
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Role</label>
+                  <p className="text-foreground capitalize">{user.role}</p>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

@@ -109,7 +109,7 @@ export function AppHeader() {
                         <Link href="/profile" className="flex items-center px-3 py-2 text-sm rounded-sm hover:bg-accent" onClick={() => setIsProfileMenuOpen(false)}>
                           <User className="w-4 h-4 mr-2" /> Profile
                         </Link>
-                        {user.role === 'admin' && (
+                        {user.role === 'admin' && user.membershipStatus === 'worker' && (
                           <Link href="/admin" className="flex items-center px-3 py-2 text-sm rounded-sm hover:bg-accent" onClick={() => setIsProfileMenuOpen(false)}>
                             <Settings className="w-4 h-4 mr-2" /> Admin Panel
                           </Link>

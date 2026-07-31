@@ -1,9 +1,31 @@
 'use client'
 import { AppLayout } from '@/components/shared/AppLayout'
+import { useAuthStore } from '@/store/authStore'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { Settings, Users, Calendar, Megaphone, Activity } from 'lucide-react'
 
 export function AdminDashboard() {
+  const user = useAuthStore((state) => state.user)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (user && !(user.role === 'admin' && user.membershipStatus === 'worker')) {
+      router.replace('/')
+    }
+  }, [user, router])
+
+  if (!user || !(user.role === 'admin' && user.membershipStatus === 'worker')) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">Access denied.</p>
+        </div>
+      </AppLayout>
+    )
+  }
+
   const links = [
     { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
     { name: 'Events', href: '/admin/events', icon: Calendar },
