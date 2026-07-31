@@ -36,6 +36,69 @@ export const attendanceService = {
     return data.id
   },
 
+  async checkInByQr(
+    eventId: string,
+    userId: string,
+    ticketId: string,
+    scannedBy: string
+  ): Promise<{ attendanceId: string; userName: string }> {
+    // 1. Verify registration exists
+    const { data: reg, error: regError } = await supabase
+      .from('event_registrations')
+      .select('id, checked_in, user_id')
+      .eq('ticket_id', ticketId)
+      .eq('event_id', eventId)
+      .single()
+
+    if (regError || !reg) {
+      throw new Error('TICKET_NOT_FOUND')
+    }
+
+    if (reg.checked_in) {
+      // Fetch the user name for the "already checked in" message
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', reg.user_id)
+        .single()
+      throw new Error(`ALREADY_CHECKED_IN:${profile?.full_name || 'Unknown'}`)
+    }
+
+    // 2. Mark registration as checked in
+    const { error: updateError } = await supabase
+      .from('event_registrations')
+      .update({
+        checked_in: true,
+        checked_in_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', reg.id)
+
+    if (updateError) {
+      throw new Error('Failed to update check-in status')
+    }
+
+    // 3. Insert attendance record
+    const attendanceId = await attendanceService.recordAttendance(
+      eventId,
+      userId,
+      'qr',
+      scannedBy
+    )
+
+    // 4. Fetch user name for success toast
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, photo_url')
+      .eq('id', userId)
+      .single()
+
+    return {
+      attendanceId,
+      userName: profile?.full_name || 'Attendee',
+    }
+  },
+
   async getEventAttendance(eventId: string): Promise<AttendanceRecord[]> {
     const { data, error } = await supabase.from('attendance').select('*').eq('event_id', eventId)
 

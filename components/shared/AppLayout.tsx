@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore'
 import { AppHeader } from './AppHeader'
 import { MobileBottomNav } from './MobileBottomNav'
 import { SyncIndicator } from './SyncIndicator'
+import { LiveBanner } from './LiveBanner'
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -34,6 +35,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SyncIndicator />
+      <LiveBanner />
       <AppHeader />
       <main className="flex-1 pb-20 md:pb-0">
         {children}

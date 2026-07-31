@@ -5,6 +5,7 @@ import { announcementService } from '@/services/database/announcementService'
 import type { Announcement } from '@/types'
 import { AppLayout } from '@/components/shared/AppLayout'
 import { Button } from '@/components/shared/Button'
+import Image from 'next/image'
 import { ArrowLeft } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -27,7 +28,11 @@ export default function AnnouncementDetail() {
         <Button variant="ghost" className="mb-6" onClick={() => router.back()}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Back
         </Button>
-        {ann.imageUrl && <img src={ann.imageUrl} alt={ann.title} className="w-full rounded-lg mb-6 max-h-96 object-cover" />}
+        {ann.imageUrl && (
+          <div className="relative w-full h-96 mb-6">
+            <Image src={ann.imageUrl} alt={ann.title} fill className="rounded-lg object-cover" />
+          </div>
+        )}
         <div className="flex items-center gap-2 mb-4">
           <span className="bg-primary/10 text-primary px-3 py-1 rounded-sm text-sm font-semibold capitalize">{ann.category}</span>
           {ann.publishAt && <span className="text-muted-foreground text-sm">{format(new Date(ann.publishAt), 'MMMM d, yyyy')}</span>}

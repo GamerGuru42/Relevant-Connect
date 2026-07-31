@@ -85,7 +85,7 @@ export function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [isVisitor, isNewConvert, isMember, isWorker])
+  }, [])
 
   useEffect(() => {
     if (user) {

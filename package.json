@@ -22,7 +22,9 @@
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.16.0",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.292.0",
+    "qrcode": "^1.5.4",
     "next": "^14.0.0",
     "next-themes": "^0.2.1",
     "postcss": "^8.4.31",
@@ -41,7 +43,6 @@
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
     "eslint": "^8.54.0",
-    "eslint-config-next": "^14.0.0",
-    "qrcode": "^1.5.4"
+    "eslint-config-next": "^14.0.0"
   }
 }

@@ -9,6 +9,7 @@ const mapProfileRow = (row: any): AuthUser => ({
   phone: row.phone ?? null,
   photoUrl: row.photo_url ?? null,
   role: row.role ?? 'member',
+  appRole: row.app_role ?? 'member',
   membershipStatus: row.membership_status ?? MEMBERSHIP_STATUS.VISITOR,
   isOnboarded: row.is_onboarded ?? false,
   department: row.department ?? null,
@@ -67,6 +68,7 @@ export const authService = {
         phone: null,
         photo_url: sessionUser.user_metadata?.avatar_url || null,
         role: 'member',
+        app_role: 'member',
         membership_status: 'visitor',
         is_onboarded: false,
         department: null,
@@ -116,6 +118,7 @@ export const authService = {
     if (updates.photoUrl !== undefined) updateData.photo_url = updates.photoUrl
     if (updates.membershipStatus !== undefined) updateData.membership_status = updates.membershipStatus
     if (updates.department !== undefined) updateData.department = updates.department
+    if (updates.appRole !== undefined) updateData.app_role = updates.appRole
 
     const { error } = await supabase.from('profiles').update(updateData).eq('id', userId)
     if (error) {

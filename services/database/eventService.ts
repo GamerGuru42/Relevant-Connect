@@ -180,4 +180,160 @@ export const eventService = {
       throw error
     }
   },
+
+  /**
+   * Get past events that a specific user registered for or attended.
+   * Returns events with an `attended` boolean flag.
+   */
+  async getPastEventsForUser(userId: string, limit = 10): Promise<(Event & { attended: boolean })[]> {
+    const cacheKey = `events_past_user_${userId}_${limit}`
+    try {
+      const today = new Date().toISOString().split('T')[0]
+
+      // Get events user registered for that are in the past
+      const { data, error } = await supabase
+        .from('event_registrations')
+        .select(`
+          event_id,
+          events!inner (*)
+        `)
+        .eq('user_id', userId)
+        .lt('events.date', today)
+        .is('events.deleted_at', null)
+        .order('events(date)', { ascending: false })
+        .limit(limit)
+
+      if (error) throw new Error(error.message)
+
+      // Check attendance for each event
+      const eventIds = (data ?? []).map((r: any) => r.event_id)
+      let attendedSet = new Set<string>()
+
+      if (eventIds.length > 0) {
+        const { data: attendanceData } = await supabase
+          .from('attendance')
+          .select('event_id')
+          .eq('user_id', userId)
+          .in('event_id', eventIds)
+
+        attendedSet = new Set((attendanceData ?? []).map((a: any) => a.event_id))
+      }
+
+      const results = (data ?? []).map((row: any) => ({
+        ...mapEventRow(row.events),
+        attended: attendedSet.has(row.event_id),
+      }))
+
+      if (typeof window !== 'undefined') setCache(cacheKey, results)
+      return results
+    } catch (error) {
+      if (typeof window !== 'undefined') {
+        const cached = getCached<(Event & { attended: boolean })[]>(cacheKey)
+        if (cached) return cached
+      }
+      throw error
+    }
+  },
+
+  /**
+   * Get past events for a department with registration + attendance counts.
+   */
+  async getPastEventsForDepartment(department: string, limit = 5): Promise<(Event & { registrationCount: number; attendanceCount: number })[]> {
+    const cacheKey = `events_past_dept_${department}_${limit}`
+    try {
+      const today = new Date().toISOString().split('T')[0]
+
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('department', department)
+        .lt('date', today)
+        .is('deleted_at', null)
+        .order('date', { ascending: false })
+        .limit(limit)
+
+      if (error) throw new Error(error.message)
+
+      // Fetch counts for each event
+      const results = await Promise.all(
+        (data ?? []).map(async (row: any) => {
+          const [regResult, attResult] = await Promise.all([
+            supabase
+              .from('event_registrations')
+              .select('id', { count: 'exact', head: true })
+              .eq('event_id', row.id),
+            supabase
+              .from('attendance')
+              .select('id', { count: 'exact', head: true })
+              .eq('event_id', row.id),
+          ])
+
+          return {
+            ...mapEventRow(row),
+            registrationCount: regResult.count ?? 0,
+            attendanceCount: attResult.count ?? 0,
+          }
+        })
+      )
+
+      if (typeof window !== 'undefined') setCache(cacheKey, results)
+      return results
+    } catch (error) {
+      if (typeof window !== 'undefined') {
+        const cached = getCached<(Event & { registrationCount: number; attendanceCount: number })[]>(cacheKey)
+        if (cached) return cached
+      }
+      throw error
+    }
+  },
+
+  /**
+   * Get all past events globally with registration + attendance counts (for Super Admin).
+   */
+  async getGlobalEventHistory(limit = 50): Promise<(Event & { registrationCount: number; attendanceCount: number })[]> {
+    const cacheKey = `events_global_history_${limit}`
+    try {
+      const today = new Date().toISOString().split('T')[0]
+
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .lt('date', today)
+        .is('deleted_at', null)
+        .order('date', { ascending: false })
+        .limit(limit)
+
+      if (error) throw new Error(error.message)
+
+      const results = await Promise.all(
+        (data ?? []).map(async (row: any) => {
+          const [regResult, attResult] = await Promise.all([
+            supabase
+              .from('event_registrations')
+              .select('id', { count: 'exact', head: true })
+              .eq('event_id', row.id),
+            supabase
+              .from('attendance')
+              .select('id', { count: 'exact', head: true })
+              .eq('event_id', row.id),
+          ])
+
+          return {
+            ...mapEventRow(row),
+            registrationCount: regResult.count ?? 0,
+            attendanceCount: attResult.count ?? 0,
+          }
+        })
+      )
+
+      if (typeof window !== 'undefined') setCache(cacheKey, results)
+      return results
+    } catch (error) {
+      if (typeof window !== 'undefined') {
+        const cached = getCached<(Event & { registrationCount: number; attendanceCount: number })[]>(cacheKey)
+        if (cached) return cached
+      }
+      throw error
+    }
+  },
 }

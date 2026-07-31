@@ -5,7 +5,8 @@ export interface AuthUser {
   email: string
   phone: string | null
   photoUrl: string | null
-  role: 'member' | 'admin'
+  role: 'member' | 'admin' // Kept for backwards compatibility during transition
+  appRole: 'super_admin' | 'department_head' | 'worker' | 'member'
   membershipStatus: 'visitor' | 'new_convert' | 'member' | 'worker'
   isOnboarded: boolean
   department: string | null
@@ -27,6 +28,9 @@ export interface ChurchInfo {
   primaryColor: string | null
   secondaryColor: string | null
   todayScripture: string | null
+  isLive: boolean
+  liveStreamUrl: string | null
+  liveStreamPlatform: string | null
   updatedBy: string
   updatedAt: Date
 }
@@ -64,6 +68,10 @@ export interface EventRegistration {
   userId: string
   registeredAt: Date
   updatedAt: Date
+  qrCodeData: string | null
+  ticketId: string
+  checkedIn: boolean
+  checkedInAt: Date | null
 }
 
 export interface Event {
@@ -162,13 +170,18 @@ export interface Meeting {
   title: string
   description: string | null
   meetingUrl: string
-  platform: 'google_meet' | 'zoom' | 'teams' | 'other'
+  platform: 'google_meet' | 'zoom' | 'teams' | 'jitsi' | 'other'
   hostName: string
+  hostId: string
+  department: string | null
+  targetAudience: 'department' | 'all'
+  isActive: boolean
   date: string
   time: string
   durationMinutes: number
   notes: string | null
   recordingUrl: string | null
+  timerEndAt: Date | null
   createdBy: string
   createdAt: Date
   updatedAt: Date
@@ -180,6 +193,9 @@ export interface CreateMeetingInput {
   meetingUrl: string
   platform: string
   hostName: string
+  hostId: string
+  department?: string | null
+  targetAudience: 'department' | 'all'
   date: string
   time: string
   durationMinutes?: number

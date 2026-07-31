@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { MapPin, Clock, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/shared/Button'
+import Image from 'next/image'
 
 export function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
@@ -44,8 +45,8 @@ export function EventsPage() {
             {events.map((event, i) => (
               <motion.div key={event.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1 transition-transform">
                 {event.posterUrl && (
-                  <div className="h-48 bg-muted">
-                    <img src={event.posterUrl} alt={event.title} className="w-full h-full object-cover" />
+                  <div className="h-48 bg-muted relative">
+                    <Image src={event.posterUrl} alt={event.title} fill className="object-cover" />
                   </div>
                 )}
                 <div className="p-6 flex-1 flex flex-col">

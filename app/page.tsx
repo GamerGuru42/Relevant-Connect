@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '@/store/authStore'
 import { LandingPage } from '@/components/landing/LandingPage'
-import { DashboardPage } from '@/components/dashboard/DashboardPage'
+import { DashboardRouter } from '@/components/dashboard/DashboardRouter'
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -41,5 +41,5 @@ export default function Home() {
     )
   }
 
-  return user ? <DashboardPage /> : <LandingPage />
+  return user ? <DashboardRouter /> : <LandingPage />
 }

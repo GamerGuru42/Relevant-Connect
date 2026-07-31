@@ -5,11 +5,13 @@ import { eventService } from '@/services/database/eventService'
 import type { Event } from '@/types'
 import { eventRegistrationService } from '@/services/database/eventRegistrationService'
 import { useAuthStore } from '@/store/authStore'
+import Image from 'next/image'
 import { AppLayout } from '@/components/shared/AppLayout'
 import { Button } from '@/components/shared/Button'
-import { ArrowLeft, MapPin, Clock, Calendar as CalendarIcon, User as UserIcon } from 'lucide-react'
-import { format } from 'date-fns'
+import { ArrowLeft, MapPin, Clock, Calendar as CalendarIcon, User as UserIcon, Ticket, AlertCircle } from 'lucide-react'
+import { format, isPast } from 'date-fns'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function EventDetail() {
   const params = useParams()
@@ -18,37 +20,44 @@ export default function EventDetail() {
   const [event, setEvent] = useState<Event | null>(null)
   const [isRegistered, setIsRegistered] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [currentCount, setCurrentCount] = useState(0)
 
   useEffect(() => {
     if (params.id) {
       eventService.getById(params.id as string).then(setEvent)
+      eventRegistrationService.getRegistrationCount(params.id as string).then(setCurrentCount)
       if (user) {
         eventRegistrationService.isRegistered(params.id as string, user.id).then(setIsRegistered)
       }
     }
   }, [params.id, user])
 
-  const handleRSVP = async () => {
+  const handleRegister = async () => {
     if (!user || !event) return
     setLoading(true)
     try {
       if (isRegistered) {
         await eventRegistrationService.unregister(event.id, user.id)
         setIsRegistered(false)
+        setCurrentCount(c => c - 1)
         toast.success('You have unregistered from this event.')
       } else {
         await eventRegistrationService.register(event.id, user.id)
         setIsRegistered(true)
+        setCurrentCount(c => c + 1)
         toast.success('Successfully registered for event!')
       }
-    } catch (e) {
-      toast.error('Failed to update RSVP')
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to update registration')
     } finally {
       setLoading(false)
     }
   }
 
   if (!event) return <AppLayout><div className="p-8">Loading...</div></AppLayout>
+
+  const isCompleted = isPast(new Date(event.date))
+  const isFull = event.registrationLimit !== null && currentCount >= event.registrationLimit
 
   return (
     <AppLayout>
@@ -58,9 +67,16 @@ export default function EventDetail() {
         </Button>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
-            {event.posterUrl && <img src={event.posterUrl} alt={event.title} className="w-full rounded-lg max-h-[400px] object-cover" />}
+            {event.posterUrl && (
+              <div className="relative w-full h-[400px]">
+                <Image src={event.posterUrl} alt={event.title} fill className="rounded-lg object-cover" />
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-sm text-sm font-semibold capitalize">{event.category}</span>
+              {isCompleted && (
+                 <span className="bg-slate-500/10 text-slate-500 px-3 py-1 rounded-sm text-sm font-semibold">Completed</span>
+              )}
             </div>
             <h1 className="text-4xl font-bold">{event.title}</h1>
             <div className="prose dark:prose-invert max-w-none">
@@ -102,10 +118,37 @@ export default function EventDetail() {
                 </div>
               )}
               
-              <div className="pt-4 border-t border-border">
-                <Button className="w-full" onClick={handleRSVP} loading={loading} variant={isRegistered ? "outline" : "default"}>
-                  {isRegistered ? 'Cancel RSVP' : 'RSVP Now'}
-                </Button>
+              <div className="pt-4 border-t border-border space-y-3">
+                {event.registrationLimit && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    {event.registrationLimit - currentCount} spots remaining
+                  </p>
+                )}
+
+                {isCompleted ? (
+                   <Button className="w-full" disabled variant="outline">
+                     Event Completed
+                   </Button>
+                ) : isRegistered ? (
+                  <div className="flex flex-col gap-2">
+                    <Link href="/tickets" className="w-full">
+                      <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
+                        <Ticket className="w-4 h-4 mr-2" /> View Ticket
+                      </Button>
+                    </Link>
+                    <Button className="w-full text-xs" onClick={handleRegister} loading={loading} variant="ghost">
+                      Cancel Registration
+                    </Button>
+                  </div>
+                ) : isFull ? (
+                  <Button className="w-full" disabled variant="secondary">
+                    <AlertCircle className="w-4 h-4 mr-2" /> Event Full
+                  </Button>
+                ) : (
+                  <Button className="w-full" onClick={handleRegister} loading={loading}>
+                    Register Now
+                  </Button>
+                )}
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Settings, Users, Calendar, Megaphone, Activity } from 'lucide-react'
+import { Settings, Users, Calendar, Megaphone, Activity, Video, QrCode } from 'lucide-react'
 
 export function AdminDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -29,6 +29,8 @@ export function AdminDashboard() {
   const links = [
     { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
     { name: 'Events', href: '/admin/events', icon: Calendar },
+    { name: 'Meetings', href: '/admin/meetings', icon: Video },
+    { name: 'QR Scanner', href: '/admin/scanner', icon: QrCode },
     { name: 'Members', href: '/admin/members', icon: Users },
     { name: 'Church Settings', href: '/admin/settings', icon: Settings },
     { name: 'Activity Log', href: '/admin/activity', icon: Activity },

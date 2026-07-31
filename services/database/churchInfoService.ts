@@ -14,6 +14,9 @@ const mapChurchInfoRow = (row: any): ChurchInfo => ({
   primaryColor: row.primary_color ?? null,
   secondaryColor: row.secondary_color ?? null,
   todayScripture: row.today_scripture ?? null,
+  isLive: row.is_live ?? false,
+  liveStreamUrl: row.live_stream_url ?? null,
+  liveStreamPlatform: row.live_stream_platform ?? null,
   updatedBy: row.updated_by,
   updatedAt: new Date(row.updated_at),
 })
@@ -48,6 +51,9 @@ export const churchInfoService = {
         primary_color: data.primaryColor,
         secondary_color: data.secondaryColor,
         today_scripture: data.todayScripture,
+        is_live: data.isLive,
+        live_stream_url: data.liveStreamUrl,
+        live_stream_platform: data.liveStreamPlatform,
         updated_by: userId,
         updated_at: new Date().toISOString(),
       },
@@ -73,6 +79,9 @@ export const churchInfoService = {
     if (data.serviceTimes !== undefined) updateData.service_times = data.serviceTimes
     if (data.aboutText !== undefined) updateData.about_text = data.aboutText
     if (data.todayScripture !== undefined) updateData.today_scripture = data.todayScripture
+    if (data.isLive !== undefined) updateData.is_live = data.isLive
+    if (data.liveStreamUrl !== undefined) updateData.live_stream_url = data.liveStreamUrl
+    if (data.liveStreamPlatform !== undefined) updateData.live_stream_platform = data.liveStreamPlatform
 
     const { error } = await supabase.from('church_info').update(updateData).eq('id', 'churchInfo')
     if (error) {

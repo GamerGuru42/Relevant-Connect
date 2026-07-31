@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { announcementService } from '@/services/database/announcementService'
 import type { Announcement } from '@/types'
 import { AppLayout } from '@/components/shared/AppLayout'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { format } from 'date-fns'
@@ -40,8 +41,8 @@ export function AnnouncementsPage() {
             {announcements.map((ann, i) => (
               <motion.div key={ann.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl overflow-hidden flex flex-col md:flex-row hover:-translate-y-1 transition-transform">
                 {ann.imageUrl && (
-                  <div className="md:w-1/3 h-48 md:h-auto bg-muted">
-                    <img src={ann.imageUrl} alt={ann.title} className="w-full h-full object-cover" />
+                  <div className="md:w-1/3 h-48 md:h-auto bg-muted relative">
+                    <Image src={ann.imageUrl} alt={ann.title} fill className="object-cover" />
                   </div>
                 )}
                 <div className="p-6 flex-1 flex flex-col justify-between">
