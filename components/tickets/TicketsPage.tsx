@@ -24,6 +24,7 @@ export function TicketsPage() {
   useEffect(() => {
     if (!user) return
     loadTickets()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const loadTickets = async () => {

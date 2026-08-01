@@ -7,6 +7,7 @@ import { AppHeader } from './AppHeader'
 import { MobileBottomNav } from './MobileBottomNav'
 import { SyncIndicator } from './SyncIndicator'
 import { LiveBanner } from './LiveBanner'
+import { InstallPrompt } from './InstallPrompt'
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -41,6 +42,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <MobileBottomNav />
+      <InstallPrompt />
     </div>
   )
 }

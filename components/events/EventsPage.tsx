@@ -46,7 +46,7 @@ export function EventsPage() {
               <motion.div key={event.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1 transition-transform">
                 {event.posterUrl && (
                   <div className="h-48 bg-muted relative">
-                    <Image src={event.posterUrl} alt={event.title} fill className="object-cover" />
+                    <Image src={event.posterUrl} alt={event.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
                   </div>
                 )}
                 <div className="p-6 flex-1 flex flex-col">

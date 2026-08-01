@@ -8,6 +8,7 @@ const PRECACHE_URLS = [
   '/auth/login',
   '/auth/signup',
   '/manifest.json',
+  '/offline.html',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
 ];
@@ -58,7 +59,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request).then((r) => r || caches.match('/')))
+        .catch(() => caches.match(request).then((r) => r || caches.match('/offline.html')))
     );
     return;
   }

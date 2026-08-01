@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { AppLayout } from '@/components/shared/AppLayout'
 import { DashboardHeader } from '@/components/shared/DashboardHeader'
+import { SkeletonList } from '@/components/shared/SkeletonList'
 
 export function VisitorDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -132,9 +133,7 @@ export function VisitorDashboard() {
                 
                 <div className="grid gap-4">
                   {loading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <div key={i} className="h-32 bg-card rounded-2xl animate-pulse border border-border"></div>
-                    ))
+                    <SkeletonList count={2} />
                   ) : upcomingEvents.length > 0 ? (
                     upcomingEvents.map((event) => (
                       <div key={event.id} className="group bg-card border border-border hover:border-primary/30 p-5 rounded-2xl flex flex-col sm:flex-row gap-5 transition-all shadow-sm hover:shadow-md">
@@ -193,15 +192,7 @@ export function VisitorDashboard() {
                 
                 <div className="space-y-5">
                   {loading ? (
-                     Array(3).fill(0).map((_, i) => (
-                      <div key={i} className="flex gap-3 animate-pulse">
-                        <div className="w-2 h-2 mt-1.5 rounded-full bg-muted"></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-3 bg-muted rounded w-full"></div>
-                          <div className="h-3 bg-muted rounded w-2/3"></div>
-                        </div>
-                      </div>
-                    ))
+                    <SkeletonList count={2} />
                   ) : announcements.length > 0 ? (
                     announcements.map((announcement) => (
                       <Link href={`/announcements/${announcement.id}`} key={announcement.id} className="flex gap-3 group">

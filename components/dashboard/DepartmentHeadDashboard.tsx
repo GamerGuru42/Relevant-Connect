@@ -19,6 +19,7 @@ import { QuickActions, QuickAction } from '@/components/shared/QuickActions'
 import { StatsCard } from '@/components/shared/StatsCard'
 import { UpcomingMeetingsList } from '@/components/meetings/UpcomingMeetingsList'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { SkeletonList } from '@/components/shared/SkeletonList'
 
 export function DepartmentHeadDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -121,9 +122,7 @@ export function DepartmentHeadDashboard() {
                 
                 <div className="grid gap-4">
                   {loading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <div key={i} className="h-24 bg-card rounded-2xl animate-pulse border border-border"></div>
-                    ))
+                    <SkeletonList count={2} />
                   ) : upcomingEvents.length > 0 ? (
                     upcomingEvents.map((event) => (
                       <div key={event.id} className="group bg-card border border-border hover:border-primary/30 p-4 rounded-2xl flex items-center justify-between transition-all shadow-sm hover:shadow-md">
@@ -164,7 +163,7 @@ export function DepartmentHeadDashboard() {
                 
                 <div className="grid gap-4">
                   {loading ? (
-                    <div className="h-24 bg-card rounded-2xl animate-pulse border border-border"></div>
+                    <SkeletonList count={1} />
                   ) : pastEvents.length > 0 ? (
                     pastEvents.map((event) => (
                       <div key={event.id} className="bg-card border border-border p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
@@ -215,15 +214,7 @@ export function DepartmentHeadDashboard() {
                 
                 <div className="space-y-5">
                   {loading ? (
-                     Array(3).fill(0).map((_, i) => (
-                      <div key={i} className="flex gap-3 animate-pulse">
-                        <div className="w-2 h-2 mt-1.5 rounded-full bg-muted"></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-3 bg-muted rounded w-full"></div>
-                          <div className="h-3 bg-muted rounded w-2/3"></div>
-                        </div>
-                      </div>
-                    ))
+                    <SkeletonList count={2} />
                   ) : announcements.length > 0 ? (
                     announcements.map((announcement) => (
                       <Link href={`/announcements/${announcement.id}`} key={announcement.id} className="flex gap-3 group">

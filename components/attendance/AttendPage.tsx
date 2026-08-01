@@ -11,6 +11,8 @@ import { motion } from 'framer-motion'
 import { CheckCircle2, XCircle, Calendar, MapPin, Clock, Loader2 } from 'lucide-react'
 import { Button } from '@/components/shared/Button'
 
+import { haptics } from '@/utils/haptics'
+
 export function AttendPage({ eventId }: { eventId: string }) {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
@@ -36,12 +38,14 @@ export function AttendPage({ eventId }: { eventId: string }) {
         // Record attendance
         await attendanceService.recordAttendance(eventId, user.id, 'qr')
         setStatus('success')
+        haptics.success()
         
         // Clean up return URL if it exists
         sessionStorage.removeItem('returnUrl')
       } catch (err: any) {
         setErrorMessage(err.message || 'Failed to record attendance')
         setStatus('error')
+        haptics.error()
       }
     }
 

@@ -42,7 +42,7 @@ export function AnnouncementsPage() {
               <motion.div key={ann.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-2xl overflow-hidden flex flex-col md:flex-row hover:-translate-y-1 transition-transform">
                 {ann.imageUrl && (
                   <div className="md:w-1/3 h-48 md:h-auto bg-muted relative">
-                    <Image src={ann.imageUrl} alt={ann.title} fill className="object-cover" />
+                    <Image src={ann.imageUrl} alt={ann.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
                   </div>
                 )}
                 <div className="p-6 flex-1 flex flex-col justify-between">

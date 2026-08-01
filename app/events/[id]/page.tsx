@@ -12,6 +12,7 @@ import { ArrowLeft, MapPin, Clock, Calendar as CalendarIcon, User as UserIcon, T
 import { format, isPast } from 'date-fns'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import { haptics } from '@/utils/haptics'
 
 export default function EventDetail() {
   const params = useParams()
@@ -35,20 +36,24 @@ export default function EventDetail() {
   const handleRegister = async () => {
     if (!user || !event) return
     setLoading(true)
+    haptics.light()
     try {
       if (isRegistered) {
         await eventRegistrationService.unregister(event.id, user.id)
         setIsRegistered(false)
         setCurrentCount(c => c - 1)
         toast.success('You have unregistered from this event.')
+        haptics.medium()
       } else {
         await eventRegistrationService.register(event.id, user.id)
         setIsRegistered(true)
         setCurrentCount(c => c + 1)
         toast.success('Successfully registered for event!')
+        haptics.success()
       }
     } catch (e: any) {
       toast.error(e.message || 'Failed to update registration')
+      haptics.error()
     } finally {
       setLoading(false)
     }
@@ -69,7 +74,7 @@ export default function EventDetail() {
           <div className="md:col-span-2 space-y-6">
             {event.posterUrl && (
               <div className="relative w-full h-[400px]">
-                <Image src={event.posterUrl} alt={event.title} fill className="rounded-lg object-cover" />
+                <Image src={event.posterUrl} alt={event.title} fill sizes="(max-width: 768px) 100vw, 50vw" priority className="rounded-lg object-cover" />
               </div>
             )}
             <div className="flex items-center gap-2">

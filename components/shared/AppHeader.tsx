@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Bell, User, LogOut, Settings, Sun, Moon, HelpCircle, CheckCheck, Megaphone, Calendar as CalendarIcon, BellRing } from 'lucide-react'
+import { Menu, X, Bell, User, LogOut, Settings, Sun, Moon, HelpCircle, CheckCheck, Megaphone, Calendar as CalendarIcon, BellRing, Heart } from 'lucide-react'
 import { Button } from './Button'
 import { useAuthStore } from '@/store/authStore'
 import { authService } from '@/services/auth/authService'
@@ -59,7 +59,7 @@ export function AppHeader() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full glass border-b border-border/40">
+    <header className="sticky top-0 z-50 w-full glass border-b border-border/40 safe-top">
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-3 group">
@@ -83,12 +83,12 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <Link href="/help" className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary">
+          <Link href="/help" className="p-3 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary flex items-center justify-center">
             <HelpCircle className="w-5 h-5" />
           </Link>
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary"
+            className="p-3 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary flex items-center justify-center"
             aria-label="Toggle Theme"
           >
             {mounted ? (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />) : <div className="w-5 h-5" />}
@@ -99,12 +99,12 @@ export function AppHeader() {
               <div className="relative" ref={notifRef}>
                 <button
                   onClick={() => { setIsNotificationsOpen(!isNotificationsOpen); setIsProfileMenuOpen(false); }}
-                  className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
+                  className="relative p-3 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent flex items-center justify-center"
                   aria-label="Notifications"
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-primary text-primary-foreground text-[10px] font-bold rounded-full px-1 animate-pulse">
+                    <span className="absolute top-1 right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-primary text-primary-foreground text-[10px] font-bold rounded-full px-1 animate-pulse">
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
@@ -117,7 +117,7 @@ export function AppHeader() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-80 max-h-96 rounded-xl shadow-xl bg-card border border-border overflow-hidden z-50"
+                      className="absolute right-0 mt-2 w-64 rounded-xl shadow-xl bg-card border border-border overflow-hidden z-50 overscroll-contain"
                     >
                       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                         <h3 className="font-semibold text-sm">Notifications</h3>
@@ -174,7 +174,7 @@ export function AppHeader() {
               <div className="relative">
                 <button 
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 p-1 rounded-full hover:bg-accent transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-full hover:bg-accent transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold">
                     {user.fullName.charAt(0).toUpperCase()}
@@ -187,7 +187,7 @@ export function AppHeader() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card border border-border overflow-hidden"
+                      className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card border border-border overflow-hidden z-50 overscroll-contain"
                     >
                       <div className="px-4 py-3 border-b border-border">
                         <p className="text-sm font-medium truncate">{user.fullName}</p>
@@ -196,6 +196,9 @@ export function AppHeader() {
                       <div className="p-1">
                         <Link href="/profile" className="flex items-center px-3 py-2 text-sm rounded-sm hover:bg-accent" onClick={() => setIsProfileMenuOpen(false)}>
                           <User className="w-4 h-4 mr-2" /> Profile
+                        </Link>
+                        <Link href="/give/history" className="flex items-center px-3 py-2 text-sm rounded-sm hover:bg-accent" onClick={() => setIsProfileMenuOpen(false)}>
+                          <Heart className="w-4 h-4 mr-2" /> My Giving
                         </Link>
                         {user.role === 'admin' && user.membershipStatus === 'worker' && (
                           <Link href="/admin" className="flex items-center px-3 py-2 text-sm rounded-sm hover:bg-accent" onClick={() => setIsProfileMenuOpen(false)}>

@@ -65,6 +65,7 @@ export function ScannerMode() {
     return () => {
       stopScanner()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEvent])
 
   const startScanner = async () => {

@@ -30,7 +30,7 @@ export default function AnnouncementDetail() {
         </Button>
         {ann.imageUrl && (
           <div className="relative w-full h-96 mb-6">
-            <Image src={ann.imageUrl} alt={ann.title} fill className="rounded-lg object-cover" />
+            <Image src={ann.imageUrl} alt={ann.title} fill sizes="(max-width: 768px) 100vw, 50vw" priority className="rounded-lg object-cover" />
           </div>
         )}
         <div className="flex items-center gap-2 mb-4">

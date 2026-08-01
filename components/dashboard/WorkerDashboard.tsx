@@ -10,7 +10,7 @@ import type { Announcement, Event } from '@/types'
 import { useRealtimeAnnouncements } from '@/hooks/useRealtimeAnnouncements'
 import { useRealtimeEvents } from '@/hooks/useRealtimeEvents'
 
-import { Calendar as CalendarIcon, Clock, MapPin, ArrowRight, ChevronRight, Video, CheckCircle, Bell, Users, History } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, MapPin, ArrowRight, ChevronRight, Video, CheckCircle, Bell, Users, History, Heart } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { AppLayout } from '@/components/shared/AppLayout'
@@ -18,6 +18,7 @@ import { DashboardHeader } from '@/components/shared/DashboardHeader'
 import { QuickActions, QuickAction } from '@/components/shared/QuickActions'
 import { UpcomingMeetingsList } from '@/components/meetings/UpcomingMeetingsList'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { SkeletonList } from '@/components/shared/SkeletonList'
 
 export function WorkerDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -62,9 +63,9 @@ export function WorkerDashboard() {
 
   const actions: QuickAction[] = [
     { label: 'Check In', href: '/attendance/check-in', icon: <CheckCircle className="w-6 h-6" />, colorClass: 'bg-emerald-500/10 text-emerald-500' },
+    { label: 'Give', href: '/give', icon: <Heart className="w-6 h-6" />, colorClass: 'bg-teal-500/10 text-teal-500' },
     { label: 'Department', href: '/department', icon: <Users className="w-6 h-6" />, colorClass: 'bg-indigo-500/10 text-indigo-500' },
     { label: 'Meetings', href: '/meetings', icon: <Video className="w-6 h-6" />, colorClass: 'bg-rose-500/10 text-rose-500' },
-    { label: 'Roster', href: '/roster', icon: <CalendarIcon className="w-6 h-6" />, colorClass: 'bg-blue-500/10 text-blue-500' },
   ]
 
   return (
@@ -122,9 +123,7 @@ export function WorkerDashboard() {
                 
                 <div className="grid gap-4">
                   {loading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <div key={i} className="h-24 bg-card rounded-2xl animate-pulse border border-border"></div>
-                    ))
+                    <SkeletonList count={2} />
                   ) : upcomingEvents.length > 0 ? (
                     upcomingEvents.map((event) => (
                       <div key={event.id} className="group bg-card border border-border hover:border-primary/30 p-4 rounded-2xl flex items-center justify-between transition-all shadow-sm hover:shadow-md">
@@ -166,7 +165,7 @@ export function WorkerDashboard() {
                 
                 <div className="grid gap-4">
                   {loading ? (
-                    <div className="h-24 bg-card rounded-2xl animate-pulse border border-border"></div>
+                    <SkeletonList count={1} />
                   ) : pastEvents.length > 0 ? (
                     pastEvents.map((event) => (
                       <div key={event.id} className="bg-card border border-border p-4 rounded-2xl flex items-center justify-between shadow-sm">
@@ -215,15 +214,7 @@ export function WorkerDashboard() {
                 
                 <div className="space-y-5">
                   {loading ? (
-                     Array(3).fill(0).map((_, i) => (
-                      <div key={i} className="flex gap-3 animate-pulse">
-                        <div className="w-2 h-2 mt-1.5 rounded-full bg-muted"></div>
-                        <div className="flex-1 space-y-2">
-                          <div className="h-3 bg-muted rounded w-full"></div>
-                          <div className="h-3 bg-muted rounded w-2/3"></div>
-                        </div>
-                      </div>
-                    ))
+                    <SkeletonList count={2} />
                   ) : announcements.length > 0 ? (
                     announcements.map((announcement) => (
                       <Link href={`/announcements/${announcement.id}`} key={announcement.id} className="flex gap-3 group">

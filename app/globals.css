@@ -92,6 +92,7 @@
   button, a, [role="button"] {
     min-height: 44px;
     min-width: 44px;
+    touch-action: manipulation;
   }
   /* Better scroll behavior */
   html {

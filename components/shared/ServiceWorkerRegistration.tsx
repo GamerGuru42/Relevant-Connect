@@ -33,26 +33,36 @@ export function ServiceWorkerRegistration() {
           }, 1000 * 60 * 60)
 
           const listenForWaitingServiceWorker = (reg: ServiceWorkerRegistration) => {
+            const promptUserToUpdate = (worker: ServiceWorker) => {
+              toast.custom((t) => (
+                <div className="bg-card border border-border shadow-lg rounded-lg p-4 flex items-center gap-4">
+                  <span className="text-sm font-medium">Update available.</span>
+                  <button
+                    onClick={() => {
+                      toast.dismiss(t.id)
+                      worker.postMessage({ type: 'SKIP_WAITING' })
+                    }}
+                    className="bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-bold hover:bg-primary/90"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              ), { duration: Infinity, id: 'sw-update' })
+            }
+
             const awaitStateChange = () => {
               reg.installing?.addEventListener('statechange', function () {
                 if (this.state === 'installed' && navigator.serviceWorker.controller) {
-                  // A new service worker is installed and waiting.
-                  // Tell it to skip waiting and activate immediately.
-                  this.postMessage({ type: 'SKIP_WAITING' })
+                  promptUserToUpdate(this)
                 }
               })
             }
 
             if (!reg.waiting) {
-              // If there's already an installing worker, wait for state changes
-              if (reg.installing) {
-                awaitStateChange()
-              }
-              // Listen for new installing workers
+              if (reg.installing) awaitStateChange()
               reg.addEventListener('updatefound', awaitStateChange)
             } else {
-              // A worker is already waiting (maybe from a previous load)
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' })
+              promptUserToUpdate(reg.waiting)
             }
           }
 

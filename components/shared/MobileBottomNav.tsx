@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Home, Calendar, BookOpen, Video, User } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { motion } from 'framer-motion'
+import { haptics } from '@/utils/haptics'
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -33,7 +34,8 @@ export function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="relative flex flex-col items-center justify-center gap-0.5 py-1 px-3 min-w-[56px] min-h-[48px]"
+              onClick={() => haptics.light()}
+              className="relative flex flex-col items-center justify-center gap-1 py-2 px-4 min-w-[64px] min-h-[56px]"
             >
               {isActive && (
                 <motion.div
