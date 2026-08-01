@@ -19,6 +19,7 @@ import { DashboardHeader } from '@/components/shared/DashboardHeader'
 import { QuickActions, QuickAction } from '@/components/shared/QuickActions'
 import { StatsCard } from '@/components/shared/StatsCard'
 import { UpcomingMeetingsList } from '@/components/meetings/UpcomingMeetingsList'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 export function SuperAdminDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -181,9 +182,11 @@ export function SuperAdminDashboard() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 bg-card border border-border rounded-2xl text-muted-foreground">
-                      No upcoming events scheduled.
-                    </div>
+                    <EmptyState 
+                      icon={CalendarIcon}
+                      title="No upcoming events"
+                      description="Check back soon for new events!"
+                    />
                   )}
                 </div>
               </motion.div>

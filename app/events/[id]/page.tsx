@@ -146,7 +146,7 @@ export default function EventDetail() {
                   </Button>
                 ) : (
                   <Button className="w-full" onClick={handleRegister} loading={loading}>
-                    Register Now
+                    Sign Up
                   </Button>
                 )}
               </div>

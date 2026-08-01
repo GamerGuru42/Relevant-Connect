@@ -8,6 +8,7 @@ import { Video, Calendar, Clock, ExternalLink } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useRoleAccess } from '@/hooks/useRoleAccess'
 import Link from 'next/link'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 export function UpcomingMeetingsList() {
   const user = useAuthStore((state) => state.user)
@@ -57,10 +58,11 @@ export function UpcomingMeetingsList() {
 
   if (meetings.length === 0) {
     return (
-      <div className="text-center py-8 bg-white/5 border border-white/10 rounded-3xl">
-        <Video className="w-8 h-8 text-gray-500 mx-auto mb-3" />
-        <p className="text-gray-400">No upcoming meetings</p>
-      </div>
+      <EmptyState 
+        icon={Video}
+        title="No upcoming meetings"
+        description="Tap 'New Meeting' above to schedule one"
+      />
     )
   }
 

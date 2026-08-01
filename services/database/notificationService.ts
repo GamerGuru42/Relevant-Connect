@@ -9,6 +9,11 @@ const mapNotificationRow = (row: any): Notification => ({
   body: row.body,
   linkTo: row.link_to ?? null,
   read: row.read,
+  entityId: row.entity_id ?? null,
+  entityType: row.entity_type ?? null,
+  targetDepartment: row.target_department ?? null,
+  targetRole: row.target_role ?? null,
+  sentViaPush: row.sent_via_push ?? false,
   createdAt: new Date(row.created_at),
   updatedAt: new Date(row.updated_at),
 })

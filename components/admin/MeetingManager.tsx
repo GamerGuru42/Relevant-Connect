@@ -299,7 +299,7 @@ export function MeetingManager() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Target Audience</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Who Can See This?</label>
                       <select
                         value={form.targetAudience}
                         onChange={(e) => setForm({ ...form, targetAudience: e.target.value as 'department' | 'all' })}

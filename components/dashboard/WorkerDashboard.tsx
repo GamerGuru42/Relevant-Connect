@@ -17,6 +17,7 @@ import { AppLayout } from '@/components/shared/AppLayout'
 import { DashboardHeader } from '@/components/shared/DashboardHeader'
 import { QuickActions, QuickAction } from '@/components/shared/QuickActions'
 import { UpcomingMeetingsList } from '@/components/meetings/UpcomingMeetingsList'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 export function WorkerDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -148,9 +149,11 @@ export function WorkerDashboard() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 bg-card border border-border rounded-2xl text-muted-foreground">
-                      No upcoming events scheduled.
-                    </div>
+                    <EmptyState 
+                      icon={CalendarIcon}
+                      title="No upcoming events"
+                      description="Check back soon for new events!"
+                    />
                   )}
                 </div>
               </motion.div>
@@ -190,9 +193,11 @@ export function WorkerDashboard() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 bg-card border border-border rounded-2xl text-muted-foreground text-sm">
-                      You haven&apos;t registered for any past events yet.
-                    </div>
+                    <EmptyState 
+                      icon={History}
+                      title="No event history"
+                      description="You haven't registered for any past events yet."
+                    />
                   )}
                 </div>
               </motion.div>

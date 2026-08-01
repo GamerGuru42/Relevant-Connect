@@ -18,6 +18,7 @@ import { DashboardHeader } from '@/components/shared/DashboardHeader'
 import { QuickActions, QuickAction } from '@/components/shared/QuickActions'
 import { StatsCard } from '@/components/shared/StatsCard'
 import { UpcomingMeetingsList } from '@/components/meetings/UpcomingMeetingsList'
+import { EmptyState } from '@/components/shared/EmptyState'
 
 export function DepartmentHeadDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -146,9 +147,11 @@ export function DepartmentHeadDashboard() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 bg-card border border-border rounded-2xl text-muted-foreground">
-                      No upcoming events scheduled.
-                    </div>
+                    <EmptyState 
+                      icon={CalendarIcon}
+                      title="No upcoming events"
+                      description="Check back soon for new events!"
+                    />
                   )}
                 </div>
               </motion.div>
@@ -190,9 +193,11 @@ export function DepartmentHeadDashboard() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 bg-card border border-border rounded-2xl text-muted-foreground text-sm">
-                      No past events found for your department.
-                    </div>
+                    <EmptyState 
+                      icon={Users}
+                      title="No event history"
+                      description="You haven't registered for any past events yet."
+                    />
                   )}
                 </div>
               </motion.div>

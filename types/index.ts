@@ -140,6 +140,11 @@ export interface Notification {
   body: string
   linkTo: string | null
   read: boolean
+  entityId: string | null
+  entityType: string | null
+  targetDepartment: string | null
+  targetRole: string | null
+  sentViaPush: boolean
   createdAt: Date
   updatedAt: Date
 }

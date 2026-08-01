@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, Menu, X, Sun, Moon, LogOut, Settings, User } from 'lucide-react'
+import { Menu, X, Bell, User, LogOut, Settings, Sun, Moon, HelpCircle, CheckCheck, Megaphone, Calendar as CalendarIcon, BellRing } from 'lucide-react'
 import { Button } from './Button'
 import { useAuthStore } from '@/store/authStore'
 import { authService } from '@/services/auth/authService'
+import { useNotifications } from '@/hooks/useNotifications'
 import toast from 'react-hot-toast'
 import { Logo } from './Logo'
 
@@ -19,7 +20,21 @@ export function AppHeader() {
   const { user, setUser } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
+  const notifRef = useRef<HTMLDivElement>(null)
+
+  // Close notification dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setIsNotificationsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
   
   useEffect(() => setMounted(true), [])
 
@@ -35,7 +50,7 @@ export function AppHeader() {
   }
 
   const navLinks = [
-    { href: '/', label: 'Dashboard' },
+    { href: '/', label: 'Home' },
     { href: '/announcements', label: 'Announcements' },
     { href: '/events', label: 'Events' },
     { href: '/bible', label: 'Bible' },
@@ -68,6 +83,9 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/help" className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary">
+            <HelpCircle className="w-5 h-5" />
+          </Link>
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-accent focus:ring-2 focus:ring-primary"
@@ -78,10 +96,80 @@ export function AppHeader() {
           
           {user && (
             <>
-              <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
-              </button>
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => { setIsNotificationsOpen(!isNotificationsOpen); setIsProfileMenuOpen(false); }}
+                  className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-primary text-primary-foreground text-[10px] font-bold rounded-full px-1 animate-pulse">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {isNotificationsOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-80 max-h-96 rounded-xl shadow-xl bg-card border border-border overflow-hidden z-50"
+                    >
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                        <h3 className="font-semibold text-sm">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={markAllAsRead}
+                            className="text-xs text-primary hover:underline flex items-center gap-1"
+                          >
+                            <CheckCheck className="w-3 h-3" /> Mark all read
+                          </button>
+                        )}
+                      </div>
+                      <div className="overflow-y-auto max-h-72">
+                        {notifications.length === 0 ? (
+                          <div className="text-center py-10 px-4">
+                            <BellRing className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                            <p className="text-sm text-muted-foreground">No notifications yet</p>
+                          </div>
+                        ) : (
+                          notifications.map((n) => (
+                            <Link
+                              key={n.id}
+                              href={n.linkTo || '/'}
+                              onClick={() => {
+                                if (!n.read) markAsRead(n.id)
+                                setIsNotificationsOpen(false)
+                              }}
+                              className={`flex items-start gap-3 px-4 py-3 hover:bg-accent/50 transition-colors border-b border-border/50 last:border-0 ${
+                                !n.read ? 'bg-primary/5' : ''
+                              }`}
+                            >
+                              <div className={`mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                n.type === 'announcement' ? 'bg-blue-500/20 text-blue-500' : n.type === 'event' ? 'bg-green-500/20 text-green-500' : 'bg-orange-500/20 text-orange-500'
+                              }`}>
+                                {n.type === 'announcement' ? <Megaphone className="w-4 h-4" /> : n.type === 'event' ? <CalendarIcon className="w-4 h-4" /> : <BellRing className="w-4 h-4" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm leading-tight ${!n.read ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{n.title}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
+                                <p className="text-[10px] text-muted-foreground/60 mt-1">
+                                  {new Date(n.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                              {!n.read && <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />}
+                            </Link>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <div className="relative">
                 <button 
